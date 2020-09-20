@@ -1,7 +1,6 @@
 package de.groodian.hyperiorcloud.master.logging;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 
 public class LogOutputStream extends ByteArrayOutputStream {
 

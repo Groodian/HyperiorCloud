@@ -1,11 +1,10 @@
 package de.groodian.hyperiorcloud.master.logging.handler;
 
-import de.groodian.hyperiorcloud.master.Main;
 import de.groodian.hyperiorcloud.master.Master;
 import de.groodian.hyperiorcloud.master.logging.LogEntry;
+import de.groodian.hyperiorcloud.master.logging.LogEntryFormatter;
 import de.groodian.hyperiorcloud.master.logging.LogHandler;
 import de.groodian.hyperiorcloud.master.logging.LogLevel;
-import de.groodian.hyperiorcloud.master.logging.ILogEntryFormatter;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -26,7 +25,7 @@ public class FileLogHandler extends LogHandler {
     private File file;
     private PrintWriter printWriter;
 
-    public FileLogHandler(ILogEntryFormatter logEntryFormatter, LogLevel logLevel) {
+    public FileLogHandler(LogEntryFormatter logEntryFormatter, LogLevel logLevel) {
         super(logEntryFormatter, logLevel);
 
         try {
@@ -51,7 +50,7 @@ public class FileLogHandler extends LogHandler {
 
     @Override
     public void handle(LogEntry logEntry) {
-        if(!maxFileSizeReached) {
+        if (!maxFileSizeReached) {
             if (file.length() < MAX_FILE_SIZE) {
                 printWriter.write(logEntryFormatter.format(logEntry));
             } else {

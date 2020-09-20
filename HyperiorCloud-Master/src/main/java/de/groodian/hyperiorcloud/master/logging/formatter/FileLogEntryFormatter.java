@@ -1,14 +1,14 @@
 package de.groodian.hyperiorcloud.master.logging.formatter;
 
 import de.groodian.hyperiorcloud.master.logging.LogEntry;
-import de.groodian.hyperiorcloud.master.logging.ILogEntryFormatter;
+import de.groodian.hyperiorcloud.master.logging.LogEntryFormatter;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
-public class FileLogEntryFormatter implements ILogEntryFormatter {
+public class FileLogEntryFormatter implements LogEntryFormatter {
 
     private DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss.SSS");
 

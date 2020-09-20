@@ -1,30 +1,27 @@
 package de.groodian.hyperiorcloud.master.logging.handler;
 
-import de.groodian.hyperiorcloud.master.logging.ILogEntryFormatter;
+import de.groodian.hyperiorcloud.master.console.Console;
 import de.groodian.hyperiorcloud.master.logging.LogEntry;
+import de.groodian.hyperiorcloud.master.logging.LogEntryFormatter;
 import de.groodian.hyperiorcloud.master.logging.LogHandler;
 import de.groodian.hyperiorcloud.master.logging.LogLevel;
 
-import java.io.PrintWriter;
-
 public class ConsoleLogHandler extends LogHandler {
 
-    private PrintWriter out;
+    private Console console;
 
-    public ConsoleLogHandler(ILogEntryFormatter logEntryFormatter, LogLevel logLevel) {
+    public ConsoleLogHandler(LogEntryFormatter logEntryFormatter, LogLevel logLevel, Console console) {
         super(logEntryFormatter, logLevel);
-        out = new PrintWriter(System.out);
+        this.console = console;
     }
 
     @Override
     public void handle(LogEntry logEntry) {
-        out.write(logEntryFormatter.format(logEntry));
-        out.flush();
+        console.printLine(logEntryFormatter.format(logEntry));
     }
 
     @Override
     public void close() {
-        out.flush();
-        out.close();
     }
+
 }

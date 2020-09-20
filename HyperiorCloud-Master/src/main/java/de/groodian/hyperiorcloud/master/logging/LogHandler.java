@@ -2,10 +2,10 @@ package de.groodian.hyperiorcloud.master.logging;
 
 public abstract class LogHandler {
 
-    protected ILogEntryFormatter logEntryFormatter;
+    protected LogEntryFormatter logEntryFormatter;
     protected LogLevel logLevel;
 
-    public LogHandler(ILogEntryFormatter logEntryFormatter, LogLevel logLevel) {
+    public LogHandler(LogEntryFormatter logEntryFormatter, LogLevel logLevel) {
         this.logEntryFormatter = logEntryFormatter;
         this.logLevel = logLevel;
     }
@@ -14,7 +14,7 @@ public abstract class LogHandler {
 
     public abstract void close();
 
-    public ILogEntryFormatter getLogEntryFormatter() {
+    public LogEntryFormatter getLogEntryFormatter() {
         return logEntryFormatter;
     }
 

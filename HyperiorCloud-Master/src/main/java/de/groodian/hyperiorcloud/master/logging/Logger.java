@@ -45,7 +45,7 @@ public class Logger {
         log(LogLevel.ERROR, message, throwable);
     }
 
-    public void waring(String message) {
+    public void warning(String message) {
         log(LogLevel.WARNING, message);
     }
 
@@ -90,7 +90,7 @@ public class Logger {
     }
 
     public void log(LogLevel logLevel, String message, Throwable throwable) {
-        log(new LogEntry(logLevel, System.currentTimeMillis(), message, throwable, null, null));
+        log(new LogEntry(logLevel, System.currentTimeMillis(), message, throwable, Thread.currentThread(), null));
     }
 
     public void log(LogEntry logEntry) {
