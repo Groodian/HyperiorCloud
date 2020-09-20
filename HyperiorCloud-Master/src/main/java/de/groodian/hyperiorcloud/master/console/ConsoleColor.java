@@ -43,6 +43,17 @@ public enum ConsoleColor {
         return message;
     }
 
+    public static String removeColorCodes(String message) {
+        if (message != null) {
+            for (ConsoleColor consoleColor : values()) {
+                message = message.replace("&" + consoleColor.code, "");
+            }
+        } else {
+            Master.getInstance().getLogger().error("Could not remove color codes!", new NullPointerException());
+        }
+        return message;
+    }
+
     public char getCode() {
         return code;
     }

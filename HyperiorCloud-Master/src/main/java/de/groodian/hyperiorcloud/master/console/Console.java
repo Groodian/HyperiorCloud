@@ -1,6 +1,6 @@
 package de.groodian.hyperiorcloud.master.console;
 
-import de.groodian.hyperiorcloud.master.Master;
+import de.groodian.hyperiorcloud.master.command.CommandManager;
 import jline.console.ConsoleReader;
 import jline.console.CursorBuffer;
 import org.fusesource.jansi.AnsiConsole;
@@ -10,8 +10,8 @@ import java.io.IOException;
 public class Console {
 
     private ConsoleReader reader;
-
     private Thread thread;
+    private CommandManager commandManager;
 
     public Console() {
         AnsiConsole.systemInstall();
@@ -44,7 +44,7 @@ public class Console {
 
     private void processLine(String line) {
         if (line != null && !line.isEmpty()) {
-            Master.getInstance().getLogger().command(line);
+            commandManager.callCommand(line);
         }
     }
 
@@ -83,6 +83,10 @@ public class Console {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void setCommandManager(CommandManager commandManager) {
+        this.commandManager = commandManager;
     }
 
 }

@@ -1,5 +1,9 @@
 package de.groodian.hyperiorcloud.master;
 
+import de.groodian.hyperiorcloud.master.command.CommandManager;
+import de.groodian.hyperiorcloud.master.command.commands.ClearCommand;
+import de.groodian.hyperiorcloud.master.command.commands.ExitCommand;
+import de.groodian.hyperiorcloud.master.command.commands.HelpCommand;
 import de.groodian.hyperiorcloud.master.console.Console;
 import de.groodian.hyperiorcloud.master.logging.Logger;
 
@@ -9,11 +13,16 @@ public class Master {
 
     private Logger logger;
     private Console console;
+    private CommandManager commandManager;
 
     public Master(Logger logger, Console console) {
+        instance = this;
+
         this.logger = logger;
         this.console = console;
-        instance = this;
+
+        commandManager = new CommandManager();
+        console.setCommandManager(commandManager);
     }
 
     public void start() {
@@ -25,13 +34,13 @@ public class Master {
                 "/_/ /_/\\__, / .___/\\___/_/  /_/\\____/_/   \\____/_/\\____/\\__,_/\\__,_/   \n" +
                 "      /____/_/                                                         \n");
         logger.info("HyperiorCloud-Master is loading...");
-        logger.fatal("This is a test fatal message!");
-        logger.error("This is a test error message!");
-        logger.warning("This is a test warning message!");
-        logger.important("This is a test important message!");
 
-        System.out.println("It also works with the standard System.out.println() method!");
-        System.err.println("And with the System.err.println() method!");
+        commandManager.registerCommand(new HelpCommand(commandManager));
+        commandManager.registerCommand(new ExitCommand());
+        commandManager.registerCommand(new ClearCommand(console));
+
+        logger.info("Loaded.");
+        logger.info("Use 'help' for help.");
 
     }
 
@@ -41,10 +50,6 @@ public class Master {
 
     public Logger getLogger() {
         return logger;
-    }
-
-    public Console getConsole() {
-        return console;
     }
 
 }

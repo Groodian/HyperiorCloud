@@ -25,7 +25,7 @@ public class Logger {
         if (logHandlers.contains(logHandler)) {
             logHandlers.remove(logHandler);
         } else {
-            error("Could not remove the log handler because it is not registered!", new IllegalArgumentException());
+            error("Could not remove the log handler!", new IllegalArgumentException());
         }
     }
 

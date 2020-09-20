@@ -1,5 +1,6 @@
 package de.groodian.hyperiorcloud.master.logging.formatter;
 
+import de.groodian.hyperiorcloud.master.console.ConsoleColor;
 import de.groodian.hyperiorcloud.master.logging.LogEntry;
 import de.groodian.hyperiorcloud.master.logging.LogEntryFormatter;
 
@@ -54,7 +55,7 @@ public class FileLogEntryFormatter implements LogEntryFormatter {
 
         stringBuilder.append(System.lineSeparator());
 
-        return stringBuilder.toString();
+        return ConsoleColor.removeColorCodes(stringBuilder.toString());
     }
 
 }

@@ -27,6 +27,7 @@ public class Main {
         master.start();
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            logger.info("Stopping...");
             console.close();
             logger.close();
         }));
