@@ -20,7 +20,8 @@ public class BungeecordService extends Service {
     }
 
     @Override
-    protected void setProperties() {
+    protected boolean setProperties() {
+        return false;
     }
 
 }

@@ -9,6 +9,7 @@ public enum ServiceStatus {
     CONNECTED,
     STOPPING,
     SAVING_LOG,
-    DELETING
+    DELETING,
+    ERROR
 
 }

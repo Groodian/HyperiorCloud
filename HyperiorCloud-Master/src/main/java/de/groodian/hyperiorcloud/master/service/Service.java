@@ -5,7 +5,6 @@ import de.groodian.hyperiorcloud.master.logging.Logger;
 import de.groodian.hyperiorcloud.master.util.FileUtil;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
@@ -48,28 +47,23 @@ public abstract class Service {
         Thread prepareThread = new Thread(() -> {
 
             sourcePath = "templates/" + group + "/";
-            destinationPath = "temp/" + group + "/" + groupNumber + "/";
-
             sourceFile = new File(sourcePath);
-            destinationFile = new File(destinationPath);
-
             if (!sourceFile.exists()) {
                 sourceFile.mkdirs();
             }
 
-            if (!destinationFile.exists()) {
-                destinationFile.mkdirs();
-            }
-
             if (checkFiles0()) {
-                copyFiles();
-                setProperties0();
-
-                logger.info("[" + getId() + "] Service prepared. (" + (System.currentTimeMillis() - startPrepareTime) + "ms)");
-
-                start();
-            } else {
-                serviceHandler.removeService(this);
+                destinationPath = "temp/" + group + "/" + groupNumber + "/";
+                destinationFile = new File(destinationPath);
+                if (!destinationFile.exists()) {
+                    destinationFile.mkdirs();
+                }
+                if (copyFiles()) {
+                    if (setProperties0()) {
+                        logger.info("[" + getId() + "] Service prepared. (" + (System.currentTimeMillis() - startPrepareTime) + "ms)");
+                        start();
+                    }
+                }
             }
 
         });
@@ -92,7 +86,7 @@ public abstract class Service {
                     out += ", " + missingFile;
                 }
             }
-            logger.error("[" + getId() + "] Canceled preparation! These files are missing: " + out);
+            errorRoutine("Canceled preparation! These files are missing: " + out, null);
             return false;
         }
 
@@ -101,26 +95,28 @@ public abstract class Service {
 
     protected abstract List<String> checkFiles();
 
-    private void copyFiles() {
+    private boolean copyFiles() {
         logger.debug("[" + getId() + "] Copying files...");
         serviceStatus = ServiceStatus.COPYING_FILES;
 
         try {
             FileUtil.copyFolder(sourceFile, destinationFile);
-        } catch (IOException e) {
-            e.printStackTrace();
+            return true;
+        } catch (Exception e) {
+            errorRoutine("Could not copy service files!", e);
+            return false;
         }
     }
 
-    private void setProperties0() {
+    private boolean setProperties0() {
         logger.debug("[" + getId() + "] Setting properties...");
         serviceStatus = ServiceStatus.SETTING_PROPERTIES;
-        setProperties();
+        return setProperties();
     }
 
-    protected abstract void setProperties();
+    protected abstract boolean setProperties();
 
-    private void start() {
+    private boolean start() {
         startStartTime = System.currentTimeMillis();
         serviceStatus = ServiceStatus.STARTING;
 
@@ -128,18 +124,21 @@ public abstract class Service {
 
             if (serviceHandler.getOs() == OS.WINDOWS) {
                 logger.info("[" + getId() + "] Starting service... (using start.bat)");
-                process = new ProcessBuilder().command("cmd /c start start.bat").directory(destinationFile).start();
+                process = new ProcessBuilder().command("cmd", "/c", "start","start.bat").directory(destinationFile).start();
+                return true;
             } else if (serviceHandler.getOs() == OS.LINUX) {
                 logger.info("[" + getId() + "] Starting service... (using start.sh)");
-                process = new ProcessBuilder().command("sh -c ./start.sh").directory(destinationFile).start();
+                process = new ProcessBuilder().command("sh", "-c", "./start.sh").directory(destinationFile).start();
+                return true;
             } else {
-                logger.fatal("[" + getId() + "] Could not start the service because the OS is unknown!");
+                errorRoutine("Could not start the service because the OS is unknown!", null);
+                return false;
             }
 
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            errorRoutine("Could not start the service!", e);
+            return false;
         }
-
     }
 
     public void stop() {
@@ -184,8 +183,8 @@ public abstract class Service {
 
             return process.exitValue();
 
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            logger.error("[" + getId() + "] Could not stop the service!", e);
         }
 
         return -1;
@@ -200,8 +199,8 @@ public abstract class Service {
 
         try {
             Files.copy(new File(destinationPath + "logs/latest.log").toPath(), new File("logs/" + group + "/" + dateTimeFormatter.format(now) + "---" + groupNumber + ".log").toPath(), StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            logger.error("[" + getId() + "] Could not save the log!", e);
         }
     }
 
@@ -209,7 +208,11 @@ public abstract class Service {
         logger.debug("[" + getId() + "] Deleting service...");
         serviceStatus = ServiceStatus.DELETING;
 
-        FileUtil.deleteFolder(destinationFile);
+        try {
+            FileUtil.deleteFolder(destinationFile);
+        } catch (Exception e) {
+            logger.error("[" + getId() + "] Could not delete the service!", e);
+        }
     }
 
     public void setConnection(Connection connection) {
@@ -227,13 +230,22 @@ public abstract class Service {
                 out.write(command);
                 out.flush();
                 out.close();
-            } catch (IOException e) {
-                e.printStackTrace();
+            } catch (Exception e) {
+                logger.error("[" + getId() + "] Could not execute command!", e);
             }
 
         });
         executeCommandThread.setName(getId().toLowerCase() + "-execute-command");
         executeCommandThread.start();
+    }
+
+    protected void errorRoutine(String message, Throwable throwable) {
+        logger.error("[" + getId() + "] " + message, throwable);
+        if (serviceStatus == ServiceStatus.STARTING || serviceStatus == ServiceStatus.SETTING_PROPERTIES) {
+            delete();
+        }
+        serviceStatus = ServiceStatus.ERROR;
+        serviceHandler.removeService(this);
     }
 
     public ServiceStatus getServiceStatus() {

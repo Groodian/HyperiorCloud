@@ -22,18 +22,18 @@ public class SpigotService extends Service {
     protected List<String> checkFiles() {
         List<String> missingFiles = new ArrayList<>();
 
-        if (!new File(destinationPath, "server.properties").exists())
+        if (!new File(sourcePath, "server.properties").exists())
             missingFiles.add("server.properties");
-        if (!new File(destinationPath, "spigot.jar").exists())
+        if (!new File(sourcePath, "spigot.jar").exists())
             missingFiles.add("spigot.jar");
-        if (!new File(destinationPath, "eula.txt").exists())
+        if (!new File(sourcePath, "eula.txt").exists())
             missingFiles.add("eula.txt");
 
         if (serviceHandler.getOs() == OS.WINDOWS) {
-            if (!new File(destinationPath, "start.bat").exists())
+            if (!new File(sourcePath, "start.bat").exists())
                 missingFiles.add("start.bat");
         } else if (serviceHandler.getOs() == OS.LINUX) {
-            if (!new File(destinationPath, "start.sh").exists())
+            if (!new File(sourcePath, "start.sh").exists())
                 missingFiles.add("start.sh");
         } else {
             logger.fatal("[" + getId() + "] Could not check the files because the OS is unknown!");
@@ -43,15 +43,22 @@ public class SpigotService extends Service {
     }
 
     @Override
-    protected void setProperties() {
+    protected boolean setProperties() {
         try {
             Properties properties = new Properties();
-            properties.load(new FileInputStream(new File(destinationPath, "server.properties")));
-            properties.setProperty("port", String.valueOf(port));
+            FileInputStream in = new FileInputStream(new File(destinationPath, "server.properties"));
+            FileOutputStream out = new FileOutputStream(new File(destinationPath, "server.properties"));
+            properties.load(in);
+            properties.setProperty("server-port", String.valueOf(port));
             properties.setProperty("server-name", getId());
-            properties.store(new FileOutputStream(new File(destinationPath, "server.properties")), "Edited by HyperiorCloud");
+            properties.setProperty("motd", getId());
+            properties.store(out, "Edited by HyperiorCloud");
+            in.close();
+            out.close();
+            return true;
         } catch (IOException e) {
-            e.printStackTrace();
+            errorRoutine("Could not set service properties!", e);
+            return false;
         }
     }
 

@@ -13,12 +13,14 @@ import java.util.List;
 public class ServiceHandler {
 
     private List<Service> services;
+    private List<Service> servicesToRemove;
 
     private OS os;
     private Thread thread;
 
     public ServiceHandler() {
         services = new ArrayList<>();
+        servicesToRemove = new ArrayList<>();
 
         os = OS.getOS();
         if (os == OS.UNKNOWN) {
@@ -31,6 +33,10 @@ public class ServiceHandler {
         thread = new Thread(() -> {
 
             while (!thread.isInterrupted()) {
+
+                for (Service service : servicesToRemove) {
+                    services.remove(service);
+                }
 
                 int groupNumber = getGroupNumber("MinecraftParty");
                 if (groupNumber == -1) {
@@ -45,7 +51,7 @@ public class ServiceHandler {
                 services.add(new SpigotService(this, "MinecraftParty", groupNumber, port));
 
                 try {
-                    Thread.sleep(5000);
+                    Thread.sleep(30000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -65,6 +71,7 @@ public class ServiceHandler {
         for (Service service : services) {
             service.stop();
         }
+        notify();
     }
 
     public void newConnection(Socket socket, String group, int groupNumber) {
@@ -85,7 +92,7 @@ public class ServiceHandler {
 
     public void removeService(Service service) {
         if (services.contains(service)) {
-            services.remove(service);
+            servicesToRemove.add(service);
         } else {
             Master.getInstance().getLogger().error("[ServiceHandler] Could not remove service!", new IllegalArgumentException());
         }

@@ -26,11 +26,23 @@ public class Main {
         Master master = new Master(logger, console);
         master.start();
 
-        Thread shutdownThread = new Thread(() -> {
-            logger.info("Stopping HyperiorCloud-Master...");
-            master.stop();
-            console.close();
-            logger.close();
+        Thread shutdownThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                logger.info("Stopping HyperiorCloud-Master...");
+                master.stop();
+
+                try {
+                    wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                console.close();
+                logger.close();
+
+            }
         });
         shutdownThread.setName("shutdown");
 
