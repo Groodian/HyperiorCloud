@@ -93,7 +93,7 @@ public class Logger {
         log(new LogEntry(logLevel, System.currentTimeMillis(), message, throwable, Thread.currentThread(), null));
     }
 
-    public void log(LogEntry logEntry) {
+    public synchronized void log(LogEntry logEntry) {
         for (LogHandler logHandler : logHandlers) {
             if (logHandler.getLogLevel().getLevel() >= logEntry.getLogLevel().getLevel()) {
                 logHandler.handle(logEntry);

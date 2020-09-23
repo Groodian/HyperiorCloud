@@ -1,5 +1,7 @@
 package de.groodian.hyperiorcloud.master.service;
 
+import de.groodian.hyperiorcloud.master.Master;
+
 import java.io.*;
 import java.net.Socket;
 
@@ -46,12 +48,12 @@ public abstract class Connection {
                     if (pack instanceof Datapackage) {
                         handleDatapackage((Datapackage) pack);
                     } else {
-                        System.err.println("[" + service.getId() + "] Unknown pack: " + pack);
+                        Master.getInstance().getLogger().warning("[" + service.getId() + "] Unknown pack: " + pack);
                     }
 
                 } catch (ClassNotFoundException | IOException e) {
-                    System.out.println("[" + service.getId() + "] The service is unreachable, logging out service...");
-                    service.connectionLost();
+                    Master.getInstance().getLogger().debug("[" + service.getId() + "] The service is unreachable, stopping service...");
+                    service.stop();
                     break;
                 }
 
@@ -67,7 +69,7 @@ public abstract class Connection {
             oos.writeObject(pack);
             oos.flush();
         } catch (IOException e) {
-            System.out.println("[" + service.getId() + "] The message " + pack + " could not be send!");
+            Master.getInstance().getLogger().warning("[" + service.getId() + "] The message " + pack + " could not be send!");
         }
     }
 

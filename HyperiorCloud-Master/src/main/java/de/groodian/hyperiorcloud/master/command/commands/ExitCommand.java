@@ -5,7 +5,7 @@ import de.groodian.hyperiorcloud.master.command.Command;
 public class ExitCommand extends Command {
 
     public ExitCommand() {
-        super("Shutdowns the programm.","exit", "quit", "leave");
+        super("Shutdowns the programm.", "exit", "quit", "leave", "stop", "end");
     }
 
     @Override

@@ -35,7 +35,7 @@ public abstract class Service {
 
     private long startStartTime;
 
-    public Service(ServiceHandler serviceHandler, String group, int port, int groupNumber, String stopCommand) {
+    public Service(ServiceHandler serviceHandler, String group, int groupNumber, int port, String stopCommand) {
         this.serviceHandler = serviceHandler;
         this.group = group;
         this.groupNumber = groupNumber;
@@ -45,7 +45,7 @@ public abstract class Service {
         long startPrepareTime = System.currentTimeMillis();
         logger.info("[" + getId() + "] Preparing service...");
 
-        new Thread(() -> {
+        Thread prepareThread = new Thread(() -> {
 
             sourcePath = "templates/" + group + "/";
             destinationPath = "temp/" + group + "/" + groupNumber + "/";
@@ -61,22 +61,42 @@ public abstract class Service {
                 destinationFile.mkdirs();
             }
 
-            checkFiles0();
-            copyFiles();
-            setProperties0();
+            if (checkFiles0()) {
+                copyFiles();
+                setProperties0();
 
-            logger.info("[" + getId() + "] Service prepared. (" + (System.currentTimeMillis() - startPrepareTime) + "ms)");
+                logger.info("[" + getId() + "] Service prepared. (" + (System.currentTimeMillis() - startPrepareTime) + "ms)");
 
-            start();
+                start();
+            } else {
+                serviceHandler.removeService(this);
+            }
 
-        }).start();
+        });
+        prepareThread.setName(getId().toLowerCase() + "-prepare");
+        prepareThread.start();
 
     }
 
-    private void checkFiles0() {
+    private boolean checkFiles0() {
         logger.debug("[" + getId() + "] Checking files...");
         serviceStatus = ServiceStatus.CHECKING_FILES;
-        checkFiles();
+
+        List<String> missingFiles = checkFiles();
+        if (!missingFiles.isEmpty()) {
+            String out = null;
+            for (String missingFile : missingFiles) {
+                if (out == null) {
+                    out = missingFile;
+                } else {
+                    out += ", " + missingFile;
+                }
+            }
+            logger.error("[" + getId() + "] Canceled preparation! These files are missing: " + out);
+            return false;
+        }
+
+        return true;
     }
 
     protected abstract List<String> checkFiles();
@@ -132,7 +152,7 @@ public abstract class Service {
         logger.info("[" + getId() + "] Stopping service...");
         serviceStatus = ServiceStatus.STOPPING;
 
-        new Thread(() -> {
+        Thread stopThread = new Thread(() -> {
 
             int exitValue = stop0();
             saveLog();
@@ -140,9 +160,13 @@ public abstract class Service {
 
             connection.close();
 
+            serviceHandler.removeService(this);
+
             logger.info("[" + getId() + "] Service stopped. Exit value: " + exitValue + " (" + (System.currentTimeMillis() - stopStartTime) + "ms)");
 
-        }).start();
+        });
+        stopThread.setName(getId().toLowerCase() + "-stop");
+        stopThread.start();
 
     }
 
@@ -188,11 +212,6 @@ public abstract class Service {
         FileUtil.deleteFolder(destinationFile);
     }
 
-    public void connectionLost() {
-        stop();
-        serviceHandler.removeService(this);
-    }
-
     public void setConnection(Connection connection) {
         logger.info("[" + getId() + "] Service started. (" + (System.currentTimeMillis() - startStartTime) + "ms)");
         serviceStatus = ServiceStatus.CONNECTED;
@@ -201,7 +220,7 @@ public abstract class Service {
 
     public void executeCommand(String command) {
         logger.debug("[" + getId() + "] Executing command: " + command);
-        new Thread(() -> {
+        Thread executeCommandThread = new Thread(() -> {
 
             try {
                 OutputStreamWriter out = new OutputStreamWriter(process.getOutputStream());
@@ -212,7 +231,9 @@ public abstract class Service {
                 e.printStackTrace();
             }
 
-        }).start();
+        });
+        executeCommandThread.setName(getId().toLowerCase() + "-execute-command");
+        executeCommandThread.start();
     }
 
     public ServiceStatus getServiceStatus() {
@@ -229,6 +250,10 @@ public abstract class Service {
 
     public String getId() {
         return group + "-" + groupNumber;
+    }
+
+    public int getPort() {
+        return port;
     }
 
     public Connection getConnection() {

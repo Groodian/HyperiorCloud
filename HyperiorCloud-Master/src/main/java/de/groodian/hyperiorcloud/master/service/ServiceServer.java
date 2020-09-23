@@ -1,10 +1,13 @@
 package de.groodian.hyperiorcloud.master.service;
 
+import de.groodian.hyperiorcloud.master.Master;
+
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 
 public class ServiceServer {
 
@@ -26,9 +29,9 @@ public class ServiceServer {
 
                 try {
 
-                    System.out.println("[Server] Waiting for connection...");
+                    Master.getInstance().getLogger().debug("[ServiceServer] Waiting for connection...");
                     Socket tempSocket = serverSocket.accept();
-                    System.out.println("[Server] Connected to client: " + tempSocket.getRemoteSocketAddress());
+                    Master.getInstance().getLogger().debug("[ServiceServer] Connected to service: " + tempSocket.getRemoteSocketAddress());
 
                     ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(tempSocket.getInputStream()));
                     Object pack = ois.readObject();
@@ -42,15 +45,17 @@ public class ServiceServer {
                         if (header.equalsIgnoreCase("LOGIN")) {
                             serviceHandler.newConnection(tempSocket, datapackage.get(1).toString(), (int) datapackage.get(2));
                         } else {
-                            System.err.println("[Server] Unknown header: " + header);
+                            Master.getInstance().getLogger().warning("[ServiceServer] Unknown header: " + header);
                             tempSocket.close();
                         }
 
                     } else {
-                        System.err.println("[Server] Unknown pack: " + pack);
+                        Master.getInstance().getLogger().warning("[ServiceServer] Unknown pack: " + pack);
                         tempSocket.close();
                     }
 
+                } catch (SocketException e) {
+                    Master.getInstance().getLogger().debug("[ServiceServer] Socket closed.");
                 } catch (IOException | ClassNotFoundException e) {
                     e.printStackTrace();
                 }
@@ -58,30 +63,40 @@ public class ServiceServer {
             }
 
         });
-        listeningThread.setName("server");
+        listeningThread.setName("service-server");
         listeningThread.start();
     }
 
-    public void start() {
-        System.out.println("[Server] Server starting...");
+    public boolean start() {
+        Master.getInstance().getLogger().info("[ServiceServer] Starting...");
         try {
             serverSocket = new ServerSocket(port);
+            Master.getInstance().getLogger().info("[ServiceServer] Started.");
+            startListening();
+            return true;
         } catch (IOException e) {
-            System.err.println("[Server] Could not start the Server. Is the port free?");
+            Master.getInstance().getLogger().fatal("[ServiceServer] Could not be started. Is the port free?");
         }
-        System.out.println("[Server] Server started.");
-        startListening();
+
+        return false;
     }
 
     public void stop() {
-        System.out.println("[Server] Server stopping...");
+        Master.getInstance().getLogger().info("[ServiceServer] Stopping...");
+
         try {
-            serverSocket.close();
+            if (serverSocket != null) {
+                serverSocket.close();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        listeningThread.interrupt();
-        System.out.println("[Server] Server stopped.");
+
+        if (listeningThread != null) {
+            listeningThread.interrupt();
+        }
+
+        Master.getInstance().getLogger().info("[ServiceServer] Stopped.");
     }
 
 }

@@ -6,6 +6,8 @@ import de.groodian.hyperiorcloud.master.command.commands.ExitCommand;
 import de.groodian.hyperiorcloud.master.command.commands.HelpCommand;
 import de.groodian.hyperiorcloud.master.console.Console;
 import de.groodian.hyperiorcloud.master.logging.Logger;
+import de.groodian.hyperiorcloud.master.service.ServiceHandler;
+import de.groodian.hyperiorcloud.master.service.ServiceServer;
 
 public class Master {
 
@@ -14,15 +16,14 @@ public class Master {
     private Logger logger;
     private Console console;
     private CommandManager commandManager;
+    private ServiceHandler serviceHandler;
+    private ServiceServer serviceServer;
 
     public Master(Logger logger, Console console) {
         instance = this;
 
         this.logger = logger;
         this.console = console;
-
-        commandManager = new CommandManager();
-        console.setCommandManager(commandManager);
     }
 
     public void start() {
@@ -35,13 +36,26 @@ public class Master {
                 "      /____/_/                                                         \n");
         logger.info("HyperiorCloud-Master is loading...");
 
+        commandManager = new CommandManager();
+        console.setCommandManager(commandManager);
+
         commandManager.registerCommand(new HelpCommand(commandManager));
         commandManager.registerCommand(new ExitCommand());
         commandManager.registerCommand(new ClearCommand(console));
 
+        serviceHandler = new ServiceHandler();
+        serviceServer = new ServiceServer(4444, serviceHandler);
+        if (serviceServer.start()) {
+            serviceHandler.start();
+        }
+
         logger.info("Loaded.");
         logger.info("Use 'help' for help.");
+    }
 
+    public void stop() {
+        serviceServer.stop();
+        serviceHandler.stop();
     }
 
     public static Master getInstance() {

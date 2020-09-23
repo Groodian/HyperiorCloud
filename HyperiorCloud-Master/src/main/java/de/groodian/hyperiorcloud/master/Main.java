@@ -26,11 +26,15 @@ public class Main {
         Master master = new Master(logger, console);
         master.start();
 
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            logger.info("Stopping...");
+        Thread shutdownThread = new Thread(() -> {
+            logger.info("Stopping HyperiorCloud-Master...");
+            master.stop();
             console.close();
             logger.close();
-        }));
+        });
+        shutdownThread.setName("shutdown");
+
+        Runtime.getRuntime().addShutdownHook(shutdownThread);
 
     }
 
