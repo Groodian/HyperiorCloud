@@ -57,7 +57,7 @@ public class Master {
 
     public void stop() {
         logger.info("Stopping HyperiorCloud-Master...");
-        console.setReading(false);
+        console.stopReading();
         Thread shutdownThread = new Thread(() -> {
             serviceServer.stop();
             serviceHandler.stop(25000);

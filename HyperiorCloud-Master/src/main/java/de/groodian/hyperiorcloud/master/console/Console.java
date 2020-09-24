@@ -15,7 +15,6 @@ public class Console {
     private boolean reading;
 
     public Console() {
-        reading = true;
         AnsiConsole.systemInstall();
 
         try {
@@ -25,10 +24,10 @@ public class Console {
             e.printStackTrace();
         }
 
-        startReading();
     }
 
-    private void startReading() {
+    public void startReading() {
+        reading = true;
         thread = new Thread(() -> {
             while (!thread.isInterrupted()) {
                 try {
@@ -36,6 +35,8 @@ public class Console {
                         reader.getOutput().write("\u001b[1G\u001b[K");
                         reader.flush();
                         processLine(reader.readLine());
+                    } else {
+                        break;
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -44,6 +45,10 @@ public class Console {
         });
         thread.setName("console");
         thread.start();
+    }
+
+    public void stopReading() {
+        reading = false;
     }
 
     private void processLine(String line) {
@@ -91,10 +96,6 @@ public class Console {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    public void setReading(boolean reading) {
-        this.reading = reading;
     }
 
     public void setCommandManager(CommandManager commandManager) {

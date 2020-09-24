@@ -16,6 +16,7 @@ public class Main {
     public static void main(String[] args) {
         Logger logger = new Logger(LogLevel.ALL);
         Console console = new Console();
+        console.startReading();
 
         logger.registerHandler(new FileLogHandler(new FileLogEntryFormatter(), LogLevel.ALL));
         logger.registerHandler(new ConsoleLogHandler(new ConsoleLogEntryFormatter(), LogLevel.ALL, console));
