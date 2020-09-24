@@ -6,7 +6,9 @@ import de.groodian.hyperiorcloud.master.service.connections.LobbyConnection;
 import de.groodian.hyperiorcloud.master.service.connections.MinecraftPartyConnection;
 import de.groodian.hyperiorcloud.master.service.services.BungeecordService;
 import de.groodian.hyperiorcloud.master.service.services.SpigotService;
+import de.groodian.network.DataPackage;
 
+import java.io.ObjectInputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
@@ -111,20 +113,29 @@ public class ServiceHandler {
         return false;
     }
 
-    public void newConnection(Socket socket, String group, int groupNumber) {
+    public void newConnection(Socket socket, ObjectInputStream ois, String group, int groupNumber) {
         for (Service service : services) {
             if (service.getId().equalsIgnoreCase(group + "-" + groupNumber)) {
                 if (group.equalsIgnoreCase("BUNGEECORD")) {
-                    service.setConnection(new BungeecordConnection(service, socket));
+                    setConnection(new BungeecordConnection(service, socket, ois));
                 } else if (group.equalsIgnoreCase("MINECRAFTPARTY")) {
-                    service.setConnection(new MinecraftPartyConnection(service, socket));
+                    setConnection(new MinecraftPartyConnection(service, socket, ois));
                 } else if (group.equalsIgnoreCase("LOBBY")) {
-                    service.setConnection(new LobbyConnection(service, socket));
+                    setConnection(new LobbyConnection(service, socket, ois));
                 } else {
                     Master.getInstance().getLogger().error("[ServiceHandler] Unknown group: " + group);
                 }
                 break;
             }
+        }
+    }
+
+    private void setConnection(Connection connection) {
+        if (connection.isAlive()) {
+            connection.getService().setConnection(connection);
+        } else {
+            Master.getInstance().getLogger().debug("[ServiceHandler] Prevented to add a dead connection to service: " + connection.getService().getId());
+            connection.close();
         }
     }
 
@@ -136,7 +147,7 @@ public class ServiceHandler {
         }
     }
 
-    public void broadcast(Datapackage pack) {
+    public void broadcast(DataPackage pack) {
         new Thread(() -> {
 
             for (Service service : services) {
@@ -146,7 +157,7 @@ public class ServiceHandler {
         }).start();
     }
 
-    public void broadcastToGroup(String group, Datapackage pack) {
+    public void broadcastToGroup(String group, DataPackage pack) {
         new Thread(() -> {
 
             for (Service service : services) {
@@ -158,7 +169,7 @@ public class ServiceHandler {
         }).start();
     }
 
-    public void sendTo(Service service, Datapackage pack) {
+    public void sendTo(Service service, DataPackage pack) {
         new Thread(() -> {
 
             sendMessage(service, pack);
@@ -166,7 +177,7 @@ public class ServiceHandler {
         }).start();
     }
 
-    private void sendMessage(Service service, Datapackage pack) {
+    private void sendMessage(Service service, DataPackage pack) {
         service.getConnection().sendMessage(pack);
     }
 

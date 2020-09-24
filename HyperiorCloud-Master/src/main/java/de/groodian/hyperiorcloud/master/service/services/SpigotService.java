@@ -40,7 +40,7 @@ public class SpigotService extends Service {
             FileOutputStream out = new FileOutputStream(new File(destinationPath, "server.properties"));
             properties.load(in);
             properties.setProperty("server-port", String.valueOf(port));
-            properties.setProperty("server-name", getId());
+            properties.setProperty("server-name", String.valueOf(groupNumber));
             properties.setProperty("motd", getId());
             properties.store(out, "Edited by HyperiorCloud");
             in.close();

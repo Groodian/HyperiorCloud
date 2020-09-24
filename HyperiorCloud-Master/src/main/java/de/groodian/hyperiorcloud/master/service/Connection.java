@@ -1,32 +1,26 @@
 package de.groodian.hyperiorcloud.master.service;
 
 import de.groodian.hyperiorcloud.master.Master;
+import de.groodian.network.DataPackage;
 
 import java.io.*;
 import java.net.Socket;
 
 public abstract class Connection {
 
-    private Connection connection;
+    protected Service service;
 
-    private Service service;
     private Socket socket;
-
     private ObjectInputStream ois;
     private ObjectOutputStream oos;
     private Thread thread;
 
-    private String state;
-    private int onlinePlayers;
-    private int maxPlayers;
-
-    public Connection(Service service, Socket socket) {
-        this.connection = this;
+    public Connection(Service service, Socket socket, ObjectInputStream ois) {
         this.service = service;
         this.socket = socket;
+        this.ois = ois;
 
         try {
-            ois = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()));
             oos = new ObjectOutputStream(new BufferedOutputStream(socket.getOutputStream()));
         } catch (IOException e) {
             e.printStackTrace();
@@ -35,7 +29,7 @@ public abstract class Connection {
         startListening();
     }
 
-    protected abstract void handleDatapackage(Datapackage datapackage);
+    protected abstract void handleDataPackage(DataPackage datapackage);
 
     private void startListening() {
         thread = new Thread(() -> {
@@ -45,8 +39,8 @@ public abstract class Connection {
                 try {
 
                     Object pack = ois.readObject();
-                    if (pack instanceof Datapackage) {
-                        handleDatapackage((Datapackage) pack);
+                    if (pack instanceof DataPackage) {
+                        handleDataPackage((DataPackage) pack);
                     } else {
                         Master.getInstance().getLogger().warning("[" + service.getId() + "] Unknown pack: " + pack);
                     }
@@ -64,7 +58,7 @@ public abstract class Connection {
         thread.start();
     }
 
-    public void sendMessage(Datapackage pack) {
+    public void sendMessage(DataPackage pack) {
         try {
             oos.writeObject(pack);
             oos.flush();
@@ -73,27 +67,26 @@ public abstract class Connection {
         }
     }
 
+    public boolean isAlive() {
+        return socket.isConnected() && ois != null && oos != null;
+    }
+
     public void close() {
         try {
-            ois.close();
-            oos.close();
-            socket.close();
+            if (ois != null)
+                ois.close();
+            if (oos != null)
+                oos.close();
+            if (socket != null)
+                socket.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
         thread.interrupt();
     }
 
-    public String getState() {
-        return state;
-    }
-
-    public int getOnlinePlayers() {
-        return onlinePlayers;
-    }
-
-    public int getMaxPlayers() {
-        return maxPlayers;
+    public Service getService() {
+        return service;
     }
 
 }

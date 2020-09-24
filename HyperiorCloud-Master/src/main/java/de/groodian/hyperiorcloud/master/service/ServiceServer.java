@@ -1,6 +1,7 @@
 package de.groodian.hyperiorcloud.master.service;
 
 import de.groodian.hyperiorcloud.master.Master;
+import de.groodian.network.DataPackage;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -27,23 +28,24 @@ public class ServiceServer {
 
             while (!listeningThread.isInterrupted()) {
 
+                Socket tempSocket = null;
+
                 try {
 
                     Master.getInstance().getLogger().debug("[ServiceServer] Waiting for connection...");
-                    Socket tempSocket = serverSocket.accept();
+                    tempSocket = serverSocket.accept();
                     Master.getInstance().getLogger().debug("[ServiceServer] Connected to service: " + tempSocket.getRemoteSocketAddress());
 
                     ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(tempSocket.getInputStream()));
                     Object pack = ois.readObject();
-                    ois.close();
 
-                    if (pack instanceof Datapackage) {
+                    if (pack instanceof DataPackage) {
 
-                        Datapackage datapackage = (Datapackage) pack;
+                        DataPackage datapackage = (DataPackage) pack;
                         String header = datapackage.get(0).toString();
 
                         if (header.equalsIgnoreCase("LOGIN")) {
-                            serviceHandler.newConnection(tempSocket, datapackage.get(1).toString(), (int) datapackage.get(2));
+                            serviceHandler.newConnection(tempSocket, ois, datapackage.get(1).toString(), (int) datapackage.get(2));
                         } else {
                             Master.getInstance().getLogger().warning("[ServiceServer] Unknown header: " + header);
                             tempSocket.close();
@@ -56,8 +58,16 @@ public class ServiceServer {
 
                 } catch (SocketException e) {
                     Master.getInstance().getLogger().debug("[ServiceServer] Socket closed.");
-                } catch (IOException | ClassNotFoundException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
+                    if (tempSocket != null) {
+                        try {
+                            tempSocket.close();
+                        } catch (IOException ioException) {
+                            ioException.printStackTrace();
+                        }
+                    }
+
                 }
 
             }
