@@ -1,6 +1,5 @@
 package de.groodian.hyperiorcloud.master.service.services;
 
-import de.groodian.hyperiorcloud.master.service.OS;
 import de.groodian.hyperiorcloud.master.service.Service;
 import de.groodian.hyperiorcloud.master.service.ServiceHandler;
 
@@ -9,13 +8,14 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
 public class SpigotService extends Service {
 
     public SpigotService(ServiceHandler serviceHandler, String group, int groupNumber, int port) {
-        super(serviceHandler, group, groupNumber, port, "stop");
+        super(serviceHandler, group, groupNumber, port, "stop", Arrays.asList("java", "-Xmx3G", "-jar", "spigot.jar"));
     }
 
     @Override
@@ -28,16 +28,6 @@ public class SpigotService extends Service {
             missingFiles.add("spigot.jar");
         if (!new File(sourcePath, "eula.txt").exists())
             missingFiles.add("eula.txt");
-
-        if (serviceHandler.getOs() == OS.WINDOWS) {
-            if (!new File(sourcePath, "start.bat").exists())
-                missingFiles.add("start.bat");
-        } else if (serviceHandler.getOs() == OS.LINUX) {
-            if (!new File(sourcePath, "start.sh").exists())
-                missingFiles.add("start.sh");
-        } else {
-            logger.fatal("[" + getId() + "] Could not check the files because the OS is unknown!");
-        }
 
         return missingFiles;
     }

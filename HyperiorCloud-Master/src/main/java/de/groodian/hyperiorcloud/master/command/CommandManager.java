@@ -35,7 +35,7 @@ public class CommandManager {
             for(String commandName : command.getNames()) {
                 if (commandName.equalsIgnoreCase(name)) {
                     command.execute(args);
-                    break;
+                    return;
                 }
             }
         }

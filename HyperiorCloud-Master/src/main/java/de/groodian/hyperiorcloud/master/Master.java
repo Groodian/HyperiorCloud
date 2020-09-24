@@ -4,6 +4,7 @@ import de.groodian.hyperiorcloud.master.command.CommandManager;
 import de.groodian.hyperiorcloud.master.command.commands.ClearCommand;
 import de.groodian.hyperiorcloud.master.command.commands.ExitCommand;
 import de.groodian.hyperiorcloud.master.command.commands.HelpCommand;
+import de.groodian.hyperiorcloud.master.command.commands.ServiceCommand;
 import de.groodian.hyperiorcloud.master.console.Console;
 import de.groodian.hyperiorcloud.master.logging.Logger;
 import de.groodian.hyperiorcloud.master.service.ServiceHandler;
@@ -39,15 +40,16 @@ public class Master {
         commandManager = new CommandManager();
         console.setCommandManager(commandManager);
 
-        commandManager.registerCommand(new HelpCommand(commandManager));
-        commandManager.registerCommand(new ExitCommand());
-        commandManager.registerCommand(new ClearCommand(console));
-
         serviceHandler = new ServiceHandler();
         serviceServer = new ServiceServer(4444, serviceHandler);
         if (serviceServer.start()) {
             serviceHandler.start();
         }
+
+        commandManager.registerCommand(new HelpCommand(commandManager));
+        commandManager.registerCommand(new ExitCommand());
+        commandManager.registerCommand(new ClearCommand(console));
+        commandManager.registerCommand(new ServiceCommand(serviceHandler));
 
         logger.info("Loaded.");
         logger.info("Use 'help' for help.");

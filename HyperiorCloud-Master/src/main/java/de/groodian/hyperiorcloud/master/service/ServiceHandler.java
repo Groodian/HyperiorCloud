@@ -4,6 +4,7 @@ import de.groodian.hyperiorcloud.master.Master;
 import de.groodian.hyperiorcloud.master.service.connections.BungeecordConnection;
 import de.groodian.hyperiorcloud.master.service.connections.LobbyConnection;
 import de.groodian.hyperiorcloud.master.service.connections.MinecraftPartyConnection;
+import de.groodian.hyperiorcloud.master.service.services.BungeecordService;
 import de.groodian.hyperiorcloud.master.service.services.SpigotService;
 
 import java.net.Socket;
@@ -15,18 +16,11 @@ public class ServiceHandler {
     private List<Service> services;
     private List<Service> servicesToRemove;
 
-    private OS os;
     private Thread thread;
 
     public ServiceHandler() {
         services = new ArrayList<>();
         servicesToRemove = new ArrayList<>();
-
-        os = OS.getOS();
-        if (os == OS.UNKNOWN) {
-            Master.getInstance().getLogger().fatal("[ServiceHandler] Could not successfully create because the OS is unknown!");
-        }
-
     }
 
     public void start() {
@@ -34,26 +28,11 @@ public class ServiceHandler {
 
             while (!thread.isInterrupted()) {
 
-                for (Service service : servicesToRemove) {
-                    services.remove(service);
-                }
-
-                int groupNumber = getGroupNumber("MinecraftParty");
-                if (groupNumber == -1) {
-                    Master.getInstance().getLogger().error("[ServiceHandler] Could not find a group number!");
-                }
-
-                int port = getPort();
-                if (port == -1) {
-                    Master.getInstance().getLogger().error("[ServiceHandler] Could not find a port!");
-                }
-
-                services.add(new SpigotService(this, "MinecraftParty", groupNumber, port));
 
                 try {
                     Thread.sleep(30000);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    Master.getInstance().getLogger().debug("[ServiceHandler] Canceled start loop.");
                 }
 
             }
@@ -71,7 +50,38 @@ public class ServiceHandler {
         for (Service service : services) {
             service.stop();
         }
-        notify();
+    }
+
+    public void startService(String group) {
+        for (Service service : servicesToRemove) {
+            services.remove(service);
+        }
+
+        int groupNumber = getGroupNumber(group);
+        if (groupNumber == -1) {
+            Master.getInstance().getLogger().error("[ServiceHandler] Could not find a group number!");
+        }
+
+        int port = getPort();
+        if (port == -1) {
+            Master.getInstance().getLogger().error("[ServiceHandler] Could not find a port!");
+        }
+
+        if (group.equalsIgnoreCase("BUNGEECORD")) {
+            services.add(new BungeecordService(this, group, groupNumber, port));
+        } else {
+            services.add(new SpigotService(this, group, groupNumber, port));
+        }
+    }
+
+    public boolean stopService(String serviceId) {
+        for (Service service : services) {
+            if (service.getId().equalsIgnoreCase(serviceId)) {
+                service.stop();
+                return true;
+            }
+        }
+        return false;
     }
 
     public void newConnection(Socket socket, String group, int groupNumber) {
@@ -86,6 +96,7 @@ public class ServiceHandler {
                 } else {
                     Master.getInstance().getLogger().error("[ServiceHandler] Unknown group: " + group);
                 }
+                break;
             }
         }
     }
@@ -160,10 +171,6 @@ public class ServiceHandler {
         }
 
         return -1;
-    }
-
-    public OS getOs() {
-        return os;
     }
 
 }

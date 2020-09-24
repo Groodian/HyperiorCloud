@@ -34,7 +34,7 @@ public class Main {
                 master.stop();
 
                 try {
-                    wait();
+                    wait(5000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

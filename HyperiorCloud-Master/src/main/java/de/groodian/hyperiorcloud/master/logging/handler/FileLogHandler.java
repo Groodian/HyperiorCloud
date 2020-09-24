@@ -30,12 +30,15 @@ public class FileLogHandler extends LogHandler {
 
         try {
             file = new File(PATH_NAME);
-            file.mkdirs();
+            if (!file.exists()) {
+                file.mkdirs();
+            }
 
-            file = new File(PATH_NAME + dateFormat.format(new Date()) + FILE_ENDING);
+            String date = dateFormat.format(new Date());
+            file = new File(PATH_NAME + date + FILE_ENDING);
             int count = 2;
             while (file.exists()) {
-                file = new File(PATH_NAME + dateFormat.format(new Date()) + "---[#" + count + "]" + FILE_ENDING);
+                file = new File(PATH_NAME + date + "---[#" + count + "]" + FILE_ENDING);
                 count++;
             }
             file.createNewFile();
