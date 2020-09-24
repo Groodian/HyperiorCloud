@@ -12,8 +12,10 @@ public class Console {
     private ConsoleReader reader;
     private Thread thread;
     private CommandManager commandManager;
+    private boolean reading;
 
     public Console() {
+        reading = true;
         AnsiConsole.systemInstall();
 
         try {
@@ -30,9 +32,11 @@ public class Console {
         thread = new Thread(() -> {
             while (!thread.isInterrupted()) {
                 try {
-                    reader.getOutput().write("\u001b[1G\u001b[K");
-                    reader.flush();
-                    processLine(reader.readLine());
+                    if (reading) {
+                        reader.getOutput().write("\u001b[1G\u001b[K");
+                        reader.flush();
+                        processLine(reader.readLine());
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -57,7 +61,11 @@ public class Console {
                 reader.getOutput().write("\u001b[1G\u001b[K");
                 reader.flush();
                 reader.getOutput().write(line);
-                reader.resetPromptLine(reader.getPrompt(), cursorBuffer.toString(), cursorBuffer.cursor);
+                if (reading) {
+                    reader.resetPromptLine(reader.getPrompt(), cursorBuffer.toString(), cursorBuffer.cursor);
+                } else {
+                    reader.resetPromptLine("", "", 0);
+                }
                 reader.flush();
 
             } catch (IOException e) {
@@ -83,6 +91,10 @@ public class Console {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void setReading(boolean reading) {
+        this.reading = reading;
     }
 
     public void setCommandManager(CommandManager commandManager) {

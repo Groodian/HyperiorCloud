@@ -1,5 +1,6 @@
 package de.groodian.hyperiorcloud.master.command.commands;
 
+import de.groodian.hyperiorcloud.master.Master;
 import de.groodian.hyperiorcloud.master.command.Command;
 
 public class ExitCommand extends Command {
@@ -10,6 +11,6 @@ public class ExitCommand extends Command {
 
     @Override
     public void execute(String[] args) {
-        System.exit(0);
+        Master.getInstance().stop();
     }
 }

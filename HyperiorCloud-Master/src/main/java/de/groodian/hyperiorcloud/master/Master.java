@@ -56,8 +56,23 @@ public class Master {
     }
 
     public void stop() {
-        serviceServer.stop();
-        serviceHandler.stop();
+        logger.info("Stopping HyperiorCloud-Master...");
+        console.setReading(false);
+        Thread shutdownThread = new Thread(() -> {
+            serviceServer.stop();
+            serviceHandler.stop(25000);
+
+            logger.info("Good bye ;)");
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            Runtime.getRuntime().exit(0);
+        });
+        shutdownThread.setName("shutdown");
+        shutdownThread.start();
     }
 
     public static Master getInstance() {

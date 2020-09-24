@@ -42,7 +42,7 @@ public class ServiceHandler {
         thread.start();
     }
 
-    public void stop() {
+    public void stop(long timeout) {
         Master.getInstance().getLogger().info("[ServiceHandler] Stopping...");
         if (thread != null) {
             thread.interrupt();
@@ -50,6 +50,33 @@ public class ServiceHandler {
         for (Service service : services) {
             service.stop();
         }
+        Master.getInstance().getLogger().important("[ServiceHandler] Waiting for all services to stop...");
+        long timeWaited = 0;
+        while (true) {
+
+            for (Service service : servicesToRemove) {
+                services.remove(service);
+            }
+
+            if (services.isEmpty()) {
+                Master.getInstance().getLogger().info("[ServiceHandler] All services stopped.");
+                break;
+            } else {
+                if (timeWaited < timeout) {
+                    try {
+                        Thread.sleep(200);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    timeWaited += 200;
+                } else {
+                    Master.getInstance().getLogger().info("[ServiceHandler] Could not stop all services.");
+                    break;
+                }
+            }
+
+        }
+
     }
 
     public void startService(String group) {

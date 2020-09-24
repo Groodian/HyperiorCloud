@@ -11,7 +11,7 @@ public class CommandManager {
     private List<Command> commands;
 
     public CommandManager() {
-        this.commands = new ArrayList<>();
+        commands = new ArrayList<>();
     }
 
     public void registerCommand(Command command) {
@@ -32,7 +32,7 @@ public class CommandManager {
 
     public void callCommand(String name, String[] args) {
         for (Command command : commands) {
-            for(String commandName : command.getNames()) {
+            for (String commandName : command.getNames()) {
                 if (commandName.equalsIgnoreCase(name)) {
                     command.execute(args);
                     return;
@@ -48,7 +48,7 @@ public class CommandManager {
             String[] args = new String[0];
             if (splittedLine.length > 1) {
                 args = new String[splittedLine.length - 1];
-                for (int i = 0; i < splittedLine.length -1; i++) {
+                for (int i = 0; i < splittedLine.length - 1; i++) {
                     args[i] = splittedLine[i + 1];
                 }
             }
