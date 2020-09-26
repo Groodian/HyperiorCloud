@@ -2,12 +2,9 @@ package de.groodian.hyperiorcloud.master.service.connections;
 
 import de.groodian.hyperiorcloud.master.Master;
 import de.groodian.hyperiorcloud.master.service.Connection;
-import de.groodian.hyperiorcloud.master.service.ServiceConnection;
 import de.groodian.hyperiorcloud.master.service.Service;
+import de.groodian.hyperiorcloud.master.service.ServiceConnection;
 import de.groodian.network.DataPackage;
-
-import java.io.ObjectInputStream;
-import java.net.Socket;
 
 public class MinecraftPartyServiceConnection extends ServiceConnection {
 

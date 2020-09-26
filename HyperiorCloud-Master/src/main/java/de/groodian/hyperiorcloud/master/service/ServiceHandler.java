@@ -8,8 +8,6 @@ import de.groodian.hyperiorcloud.master.service.services.BungeecordService;
 import de.groodian.hyperiorcloud.master.service.services.SpigotService;
 import de.groodian.network.DataPackage;
 
-import java.io.ObjectInputStream;
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
