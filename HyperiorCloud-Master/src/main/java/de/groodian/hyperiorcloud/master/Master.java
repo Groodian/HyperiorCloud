@@ -41,7 +41,7 @@ public class Master {
         console.setCommandManager(commandManager);
 
         serviceHandler = new ServiceHandler();
-        serviceServer = new ServiceServer(4444, serviceHandler);
+        serviceServer = new ServiceServer(4444);
         if (serviceServer.start()) {
             serviceHandler.start();
         }
@@ -81,6 +81,10 @@ public class Master {
 
     public Logger getLogger() {
         return logger;
+    }
+
+    public ServiceHandler getServiceHandler() {
+        return serviceHandler;
     }
 
 }

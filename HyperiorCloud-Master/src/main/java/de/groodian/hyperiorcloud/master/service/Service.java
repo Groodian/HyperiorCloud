@@ -24,7 +24,7 @@ public abstract class Service {
     protected List<String> startArguments;
 
     private DateFormat dateFormat;
-    private Connection connection;
+    private ServiceConnection serviceConnection;
     private ServiceStatus serviceStatus;
     private Process process;
 
@@ -34,6 +34,7 @@ public abstract class Service {
     protected File destinationFile;
 
     private long startStartTime;
+    private Thread prepareThread;
 
     public Service(ServiceHandler serviceHandler, String group, int groupNumber, int port, String stopCommand, List<String> startArguments) {
         this.serviceHandler = serviceHandler;
@@ -48,7 +49,7 @@ public abstract class Service {
         long startPrepareTime = System.currentTimeMillis();
         logger.info("[" + getId() + "] Preparing service...");
 
-        Thread prepareThread = new Thread(() -> {
+        prepareThread = new Thread(() -> {
 
             sourcePath = "templates/" + group + "/";
             sourceFile = new File(sourcePath);
@@ -65,7 +66,9 @@ public abstract class Service {
                 if (copyFiles()) {
                     if (setProperties0()) {
                         logger.info("[" + getId() + "] Service prepared. (" + (System.currentTimeMillis() - startPrepareTime) + "ms)");
-                        start();
+                        if (start()) {
+                            startTimeout();
+                        }
                     }
                 }
             }
@@ -149,6 +152,19 @@ public abstract class Service {
         }
     }
 
+    private void startTimeout() {
+        try {
+            Thread.sleep(30000);
+        } catch (InterruptedException e) {
+            return;
+        }
+
+        if (serviceConnection == null) {
+            logger.info("[" + getId() + "] The service started 30 seconds ago and has not logged in.");
+            stop();
+        }
+    }
+
     public void stop() {
         if (serviceStatus != ServiceStatus.STARTING && serviceStatus != ServiceStatus.CONNECTED) {
             logger.debug("[" + getId() + "] Prevented to stop the service in the status: " + serviceStatus);
@@ -176,8 +192,8 @@ public abstract class Service {
             }
             delete();
 
-            if (connection != null) {
-                connection.close();
+            if (serviceConnection != null) {
+                serviceConnection.close();
             }
 
             serviceHandler.removeService(this);
@@ -222,10 +238,11 @@ public abstract class Service {
         }
     }
 
-    public void setConnection(Connection connection) {
+    public void setConnection(ServiceConnection serviceConnection) {
         logger.info("[" + getId() + "] Service started. (" + (System.currentTimeMillis() - startStartTime) + "ms)");
         serviceStatus = ServiceStatus.CONNECTED;
-        this.connection = connection;
+        prepareThread.interrupt();
+        this.serviceConnection = serviceConnection;
     }
 
     public void executeCommand(String command) {
@@ -274,8 +291,8 @@ public abstract class Service {
         return port;
     }
 
-    public Connection getConnection() {
-        return connection;
+    public ServiceConnection getConnection() {
+        return serviceConnection;
     }
 
 }

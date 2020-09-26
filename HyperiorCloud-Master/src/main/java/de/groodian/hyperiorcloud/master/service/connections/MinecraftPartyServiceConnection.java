@@ -2,20 +2,21 @@ package de.groodian.hyperiorcloud.master.service.connections;
 
 import de.groodian.hyperiorcloud.master.Master;
 import de.groodian.hyperiorcloud.master.service.Connection;
+import de.groodian.hyperiorcloud.master.service.ServiceConnection;
 import de.groodian.hyperiorcloud.master.service.Service;
 import de.groodian.network.DataPackage;
 
 import java.io.ObjectInputStream;
 import java.net.Socket;
 
-public class MinecraftPartyConnection extends Connection {
+public class MinecraftPartyServiceConnection extends ServiceConnection {
 
     private String gameState = "Starting...";
     private int onlinePlayers = 0;
     private int maxPlayers = 0;
 
-    public MinecraftPartyConnection(Service service, Socket socket, ObjectInputStream ois) {
-        super(service, socket, ois);
+    public MinecraftPartyServiceConnection(Connection connection, Service service) {
+        super(connection, service);
     }
 
     @Override

@@ -1,9 +1,9 @@
 package de.groodian.hyperiorcloud.master.service;
 
 import de.groodian.hyperiorcloud.master.Master;
-import de.groodian.hyperiorcloud.master.service.connections.BungeecordConnection;
-import de.groodian.hyperiorcloud.master.service.connections.LobbyConnection;
-import de.groodian.hyperiorcloud.master.service.connections.MinecraftPartyConnection;
+import de.groodian.hyperiorcloud.master.service.connections.BungeecordServiceConnection;
+import de.groodian.hyperiorcloud.master.service.connections.LobbyServiceConnection;
+import de.groodian.hyperiorcloud.master.service.connections.MinecraftPartyServiceConnection;
 import de.groodian.hyperiorcloud.master.service.services.BungeecordService;
 import de.groodian.hyperiorcloud.master.service.services.SpigotService;
 import de.groodian.network.DataPackage;
@@ -113,29 +113,20 @@ public class ServiceHandler {
         return false;
     }
 
-    public void newConnection(Socket socket, ObjectInputStream ois, String group, int groupNumber) {
+    public void newConnection(Connection connection, String group, int groupNumber) {
         for (Service service : services) {
             if (service.getId().equalsIgnoreCase(group + "-" + groupNumber)) {
                 if (group.equalsIgnoreCase("BUNGEECORD")) {
-                    setConnection(new BungeecordConnection(service, socket, ois));
+                    service.setConnection(new BungeecordServiceConnection(connection, service));
                 } else if (group.equalsIgnoreCase("MINECRAFTPARTY")) {
-                    setConnection(new MinecraftPartyConnection(service, socket, ois));
+                    service.setConnection(new MinecraftPartyServiceConnection(connection, service));
                 } else if (group.equalsIgnoreCase("LOBBY")) {
-                    setConnection(new LobbyConnection(service, socket, ois));
+                    service.setConnection(new LobbyServiceConnection(connection, service));
                 } else {
                     Master.getInstance().getLogger().error("[ServiceHandler] Unknown group: " + group);
                 }
                 break;
             }
-        }
-    }
-
-    private void setConnection(Connection connection) {
-        if (connection.isAlive()) {
-            connection.getService().setConnection(connection);
-        } else {
-            Master.getInstance().getLogger().debug("[ServiceHandler] Prevented to add a dead connection to service: " + connection.getService().getId());
-            connection.close();
         }
     }
 
