@@ -3,72 +3,63 @@ package de.groodian.hyperiorcloud.master.service;
 import de.groodian.hyperiorcloud.master.Master;
 import de.groodian.network.DataPackage;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.net.SocketException;
 
-public abstract class Connection {
-
-    protected Service service;
+public class Connection {
 
     private Socket socket;
     private ObjectInputStream ois;
     private ObjectOutputStream oos;
-    private Thread thread;
 
-    public Connection(Service service, Socket socket, ObjectInputStream ois) {
-        this.service = service;
+    public Connection(Socket socket) {
         this.socket = socket;
-        this.ois = ois;
 
-        try {
-            oos = new ObjectOutputStream(new BufferedOutputStream(socket.getOutputStream()));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        startListening();
+        waitForServiceInformation();
     }
 
-    protected abstract void handleDataPackage(DataPackage datapackage);
+    private void waitForServiceInformation() {
+        Thread thread = new Thread(() -> {
 
-    private void startListening() {
-        thread = new Thread(() -> {
+            try {
 
-            while (!thread.isInterrupted()) {
+                ois = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()));
+                Object pack = ois.readObject();
 
-                try {
+                if (pack instanceof DataPackage) {
 
-                    Object pack = ois.readObject();
-                    if (pack instanceof DataPackage) {
-                        handleDataPackage((DataPackage) pack);
+                    DataPackage datapackage = (DataPackage) pack;
+                    String header = datapackage.get(0).toString();
+
+                    if (header.equalsIgnoreCase("LOGIN")) {
+                        oos = new ObjectOutputStream(new BufferedOutputStream(socket.getOutputStream()));
+                        Master.getInstance().getServiceHandler().newConnection(this, datapackage.get(1).toString(), (int) datapackage.get(2));
                     } else {
-                        Master.getInstance().getLogger().warning("[" + service.getId() + "] Unknown pack: " + pack);
+                        Master.getInstance().getLogger().warning("[" + socket.getRemoteSocketAddress() + "] Unknown header: " + header + " Closing connection...");
+                        socket.close();
                     }
 
-                } catch (ClassNotFoundException | IOException e) {
-                    Master.getInstance().getLogger().debug("[" + service.getId() + "] The service is unreachable, stopping service...");
-                    service.stop();
-                    break;
+                } else {
+                    Master.getInstance().getLogger().warning("[" + socket.getRemoteSocketAddress() + "] Unknown pack: " + pack + " Closing connection...");
+                    socket.close();
                 }
 
+            } catch (Exception e) {
+                Master.getInstance().getLogger().warning("[" + socket.getRemoteSocketAddress() + "] Could not get service information. Closing connection...", e);
+                try {
+                    socket.close();
+                } catch (Exception exception) {
+                    exception.printStackTrace();
+                }
             }
 
         });
-        thread.setName(service.getId().toLowerCase() + "-connection");
+        thread.setName(socket.getInetAddress().toString() + "-connection");
         thread.start();
-    }
-
-    public void sendMessage(DataPackage pack) {
-        try {
-            oos.writeObject(pack);
-            oos.flush();
-        } catch (IOException e) {
-            Master.getInstance().getLogger().warning("[" + service.getId() + "] The message " + pack + " could not be send!");
-        }
-    }
-
-    public boolean isAlive() {
-        return socket.isConnected() && ois != null && oos != null;
     }
 
     public void close() {
@@ -79,14 +70,23 @@ public abstract class Connection {
                 oos.close();
             if (socket != null)
                 socket.close();
-        } catch (IOException e) {
+        } catch (SocketException e) {
+            // do nothing
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        thread.interrupt();
     }
 
-    public Service getService() {
-        return service;
+    public Socket getSocket() {
+        return socket;
+    }
+
+    public ObjectInputStream getOis() {
+        return ois;
+    }
+
+    public ObjectOutputStream getOos() {
+        return oos;
     }
 
 }
