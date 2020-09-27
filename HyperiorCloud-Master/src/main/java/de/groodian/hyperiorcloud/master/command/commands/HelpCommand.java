@@ -16,8 +16,9 @@ public class HelpCommand extends Command {
     @Override
     public void execute(String[] args) {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("A list of all commands:\n");
+        stringBuilder.append("A list of all commands:");
         for (Command command : commandManager.getCommands()) {
+            stringBuilder.append("\n");
             boolean first = true;
             for (String commandName : command.getNames()) {
                 if (!first) {
@@ -31,8 +32,7 @@ public class HelpCommand extends Command {
             }
             stringBuilder
                     .append(" &8- &f")
-                    .append(command.getDescription())
-                    .append("\n");
+                    .append(command.getDescription());
         }
         Master.getInstance().getLogger().command(stringBuilder.toString());
     }

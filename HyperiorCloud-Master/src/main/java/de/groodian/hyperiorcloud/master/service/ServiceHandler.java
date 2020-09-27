@@ -47,7 +47,7 @@ public class ServiceHandler {
         if (thread != null) {
             thread.interrupt();
         }
-        for (Service service : services) {
+        for (Service service : getServices()) {
             service.stop();
         }
         Master.getInstance().getLogger().important("[ServiceHandler] Waiting for all services to stop...");
@@ -80,10 +80,6 @@ public class ServiceHandler {
     }
 
     public void startService(String group) {
-        for (Service service : servicesToRemove) {
-            services.remove(service);
-        }
-
         int groupNumber = getGroupNumber(group);
         if (groupNumber == -1) {
             Master.getInstance().getLogger().error("[ServiceHandler] Could not find a group number!");
@@ -102,7 +98,7 @@ public class ServiceHandler {
     }
 
     public boolean stopService(String serviceId) {
-        for (Service service : services) {
+        for (Service service : getServices()) {
             if (service.getId().equalsIgnoreCase(serviceId)) {
                 service.stop();
                 return true;
@@ -112,7 +108,7 @@ public class ServiceHandler {
     }
 
     public void newConnection(Connection connection, String group, int groupNumber) {
-        for (Service service : services) {
+        for (Service service : getServices()) {
             if (service.getId().equalsIgnoreCase(group + "-" + groupNumber)) {
                 if (group.equalsIgnoreCase("BUNGEECORD")) {
                     service.setConnection(new BungeecordServiceConnection(connection, service));
@@ -124,6 +120,8 @@ public class ServiceHandler {
                     Master.getInstance().getLogger().error("[ServiceHandler] Unknown group: " + group);
                 }
                 break;
+            } else {
+                Master.getInstance().getLogger().error("[ServiceHandler] Unknown serviceId: " + group + "-" + groupNumber);
             }
         }
     }
@@ -136,10 +134,18 @@ public class ServiceHandler {
         }
     }
 
+    public List<Service> getServices() {
+        for (Service service : servicesToRemove) {
+            services.remove(service);
+        }
+
+        return services;
+    }
+
     public void broadcast(DataPackage pack) {
         new Thread(() -> {
 
-            for (Service service : services) {
+            for (Service service : getServices()) {
                 sendMessage(service, pack);
             }
 
@@ -149,7 +155,7 @@ public class ServiceHandler {
     public void broadcastToGroup(String group, DataPackage pack) {
         new Thread(() -> {
 
-            for (Service service : services) {
+            for (Service service : getServices()) {
                 if (service.getGroup().equalsIgnoreCase(group)) {
                     sendMessage(service, pack);
                 }
@@ -172,7 +178,7 @@ public class ServiceHandler {
 
     private int getGroupNumber(String group) {
         List<Integer> usedGroupNumbers = new ArrayList<>();
-        for (Service service : services) {
+        for (Service service : getServices()) {
             if (service.getGroup().equalsIgnoreCase(group)) {
                 usedGroupNumbers.add(service.getGroupNumber());
             }
@@ -188,7 +194,7 @@ public class ServiceHandler {
 
     private int getPort() {
         List<Integer> usedPorts = new ArrayList<>();
-        for (Service service : services) {
+        for (Service service : getServices()) {
             usedPorts.add(service.getPort());
         }
         for (int port = 25566; port <= 65535; port++) {
