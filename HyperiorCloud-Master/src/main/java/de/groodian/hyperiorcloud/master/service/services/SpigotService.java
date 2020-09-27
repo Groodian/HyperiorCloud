@@ -46,7 +46,7 @@ public class SpigotService extends Service {
             in.close();
             out.close();
             return true;
-        } catch (IOException e) {
+        } catch (Exception e) {
             errorRoutine("Could not set service properties!", e);
             return false;
         }

@@ -7,7 +7,7 @@ import de.groodian.hyperiorcloud.master.service.ServiceHandler;
 
 public class ServiceCommand extends Command {
 
-    private static final String USAGE = "Usage: service <start/stop> <serviceId>";
+    private static final String USAGE = "Usage: service <start/stop/list> [serviceId]";
 
     private ServiceHandler serviceHandler;
 
