@@ -16,37 +16,13 @@ public class ServiceHandler {
     private List<Service> services;
     private List<Service> servicesToRemove;
 
-    private Thread thread;
-
     public ServiceHandler() {
         services = new ArrayList<>();
         servicesToRemove = new ArrayList<>();
     }
 
-    public void start() {
-        thread = new Thread(() -> {
-
-            while (!thread.isInterrupted()) {
-
-
-                try {
-                    Thread.sleep(30000);
-                } catch (InterruptedException e) {
-                    Master.getInstance().getLogger().debug("[ServiceHandler] Canceled start loop.");
-                }
-
-            }
-
-        });
-        thread.setName("service-handler");
-        thread.start();
-    }
-
     public void stop(long timeout) {
         Master.getInstance().getLogger().info("[ServiceHandler] Stopping...");
-        if (thread != null) {
-            thread.interrupt();
-        }
         for (Service service : getServices()) {
             service.stop();
         }
@@ -70,7 +46,7 @@ public class ServiceHandler {
                     }
                     timeWaited += 200;
                 } else {
-                    Master.getInstance().getLogger().info("[ServiceHandler] Could not stop all services.");
+                    Master.getInstance().getLogger().warning("[ServiceHandler] Could not stop all services.");
                     break;
                 }
             }
@@ -119,11 +95,11 @@ public class ServiceHandler {
                 } else {
                     Master.getInstance().getLogger().error("[ServiceHandler] Unknown group: " + group);
                 }
-                break;
-            } else {
-                Master.getInstance().getLogger().error("[ServiceHandler] Unknown serviceId: " + group + "-" + groupNumber);
+                return;
             }
         }
+
+        Master.getInstance().getLogger().error("[ServiceHandler] Unknown serviceId: " + group + "-" + groupNumber);
     }
 
     public void removeService(Service service) {

@@ -9,6 +9,8 @@ import de.groodian.hyperiorcloud.master.console.Console;
 import de.groodian.hyperiorcloud.master.logging.Logger;
 import de.groodian.hyperiorcloud.master.service.ServiceHandler;
 import de.groodian.hyperiorcloud.master.service.ServiceServer;
+import de.groodian.hyperiorcloud.master.task.TaskHandler;
+import de.groodian.hyperiorcloud.master.task.tasks.MinecraftPartyTask;
 
 public class Master {
 
@@ -19,6 +21,7 @@ public class Master {
     private CommandManager commandManager;
     private ServiceHandler serviceHandler;
     private ServiceServer serviceServer;
+    private TaskHandler taskHandler;
 
     public Master(Logger logger, Console console) {
         instance = this;
@@ -41,9 +44,13 @@ public class Master {
         console.setCommandManager(commandManager);
 
         serviceHandler = new ServiceHandler();
+
+        taskHandler = new TaskHandler();
+        taskHandler.registerTask(new MinecraftPartyTask());
+
         serviceServer = new ServiceServer(4444);
         if (serviceServer.start()) {
-            serviceHandler.start();
+            taskHandler.start();
         }
 
         commandManager.registerCommand(new HelpCommand(commandManager));
@@ -59,6 +66,7 @@ public class Master {
         logger.info("Stopping HyperiorCloud-Master...");
         console.stopReading();
         Thread shutdownThread = new Thread(() -> {
+            taskHandler.stop();
             serviceServer.stop();
             serviceHandler.stop(25000);
 
