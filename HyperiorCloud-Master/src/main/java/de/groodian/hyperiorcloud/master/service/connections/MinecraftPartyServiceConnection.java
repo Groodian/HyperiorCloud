@@ -8,7 +8,9 @@ import de.groodian.network.DataPackage;
 
 public class MinecraftPartyServiceConnection extends ServiceConnection {
 
-    private String gameState = "Starting...";
+    public static final String DEFAULT_GAME_STATE = "Starting...";
+
+    private String gameState = DEFAULT_GAME_STATE;
     private int onlinePlayers = 0;
     private int maxPlayers = 0;
 
