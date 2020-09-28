@@ -19,7 +19,7 @@ public class MinecraftPartyServiceConnection extends ServiceConnection {
     @Override
     protected void handleDataPackage(DataPackage datapackage) {
         String header = datapackage.get(0).toString();
-        if (header.equalsIgnoreCase("SERVER_INFO")) {
+        if (header.equalsIgnoreCase("SERVICE_INFO")) {
             gameState = datapackage.get(1).toString();
             onlinePlayers = (int) datapackage.get(2);
             maxPlayers = (int) datapackage.get(3);
