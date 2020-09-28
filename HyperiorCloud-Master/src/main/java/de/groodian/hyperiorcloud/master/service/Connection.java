@@ -15,6 +15,7 @@ public class Connection {
     private Socket socket;
     private ObjectInputStream ois;
     private ObjectOutputStream oos;
+    private Thread thread;
 
     public Connection(Socket socket) {
         this.socket = socket;
@@ -23,7 +24,7 @@ public class Connection {
     }
 
     private void waitForServiceInformation() {
-        Thread thread = new Thread(() -> {
+        thread = new Thread(() -> {
 
             try {
 
@@ -64,6 +65,8 @@ public class Connection {
 
     public void close() {
         try {
+            if (thread != null)
+                thread.interrupt();
             if (ois != null)
                 ois.close();
             if (oos != null)
