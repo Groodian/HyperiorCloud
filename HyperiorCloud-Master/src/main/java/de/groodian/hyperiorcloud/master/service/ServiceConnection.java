@@ -1,6 +1,7 @@
 package de.groodian.hyperiorcloud.master.service;
 
 import de.groodian.hyperiorcloud.master.Master;
+import de.groodian.hyperiorcloud.master.event.events.ServiceDisconnectedEvent;
 import de.groodian.network.DataPackage;
 
 public abstract class ServiceConnection {
@@ -35,6 +36,7 @@ public abstract class ServiceConnection {
 
                 } catch (Exception e) {
                     Master.getInstance().getLogger().debug("[" + service.getId() + "] An connection error occurred, stopping service...");
+                    Master.getInstance().getEventHandler().callEvent(new ServiceDisconnectedEvent(service));
                     service.stop();
                     break;
                 }

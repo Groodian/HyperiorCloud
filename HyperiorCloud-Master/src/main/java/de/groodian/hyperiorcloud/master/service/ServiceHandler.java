@@ -1,6 +1,9 @@
 package de.groodian.hyperiorcloud.master.service;
 
 import de.groodian.hyperiorcloud.master.Master;
+import de.groodian.hyperiorcloud.master.event.EventListener;
+import de.groodian.hyperiorcloud.master.event.Listener;
+import de.groodian.hyperiorcloud.master.event.events.ServiceConnectedEvent;
 import de.groodian.hyperiorcloud.master.service.connections.BungeecordServiceConnection;
 import de.groodian.hyperiorcloud.master.service.connections.LobbyServiceConnection;
 import de.groodian.hyperiorcloud.master.service.connections.MinecraftPartyServiceConnection;
@@ -11,7 +14,7 @@ import de.groodian.network.DataPackage;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ServiceHandler {
+public class ServiceHandler implements Listener {
 
     private List<Service> services;
     private List<Service> servicesToRemove;
@@ -83,23 +86,24 @@ public class ServiceHandler {
         return false;
     }
 
-    public void newConnection(Connection connection, String group, int groupNumber) {
+    @EventListener
+    public void handleServiceConnected(ServiceConnectedEvent e) {
         for (Service service : getServices()) {
-            if (service.getId().equalsIgnoreCase(group + "-" + groupNumber)) {
-                if (group.equalsIgnoreCase("BUNGEECORD")) {
-                    service.setConnection(new BungeecordServiceConnection(connection, service));
-                } else if (group.equalsIgnoreCase("MINECRAFTPARTY")) {
-                    service.setConnection(new MinecraftPartyServiceConnection(connection, service));
-                } else if (group.equalsIgnoreCase("LOBBY")) {
-                    service.setConnection(new LobbyServiceConnection(connection, service));
+            if (service.getId().equalsIgnoreCase(e.getGroup() + "-" + e.getGroupNumber())) {
+                if (e.getGroup().equalsIgnoreCase("BUNGEECORD")) {
+                    service.setConnection(new BungeecordServiceConnection(e.getConnection(), service));
+                } else if (e.getGroup().equalsIgnoreCase("MINECRAFTPARTY")) {
+                    service.setConnection(new MinecraftPartyServiceConnection(e.getConnection(), service));
+                } else if (e.getGroup().equalsIgnoreCase("LOBBY")) {
+                    service.setConnection(new LobbyServiceConnection(e.getConnection(), service));
                 } else {
-                    Master.getInstance().getLogger().error("[ServiceHandler] Unknown group: " + group);
+                    Master.getInstance().getLogger().error("[ServiceHandler] Unknown group: " + e.getGroup());
                 }
                 return;
             }
         }
 
-        Master.getInstance().getLogger().error("[ServiceHandler] Unknown serviceId: " + group + "-" + groupNumber);
+        Master.getInstance().getLogger().error("[ServiceHandler] Unknown serviceId: " + e.getGroup() + "-" + e.getGroupNumber());
     }
 
     public void removeService(Service service) {

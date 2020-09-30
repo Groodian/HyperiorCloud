@@ -1,6 +1,7 @@
 package de.groodian.hyperiorcloud.master.service.connections;
 
 import de.groodian.hyperiorcloud.master.Master;
+import de.groodian.hyperiorcloud.master.event.events.LobbyUpdateEvent;
 import de.groodian.hyperiorcloud.master.service.Connection;
 import de.groodian.hyperiorcloud.master.service.Service;
 import de.groodian.hyperiorcloud.master.service.ServiceConnection;
@@ -21,8 +22,10 @@ public class LobbyServiceConnection extends ServiceConnection {
         if (header.equalsIgnoreCase("SERVICE_INFO")) {
             onlinePlayers = (int) datapackage.get(1);
             maxPlayers = (int) datapackage.get(2);
+
+            Master.getInstance().getEventHandler().callEvent(new LobbyUpdateEvent(service, onlinePlayers, maxPlayers));
         } else {
-            Master.getInstance().getLogger().warning("[" + service.getId() + "] Unknowen header: " + header);
+            Master.getInstance().getLogger().warning("[" + service.getId() + "] Unknown header: " + header);
         }
     }
 

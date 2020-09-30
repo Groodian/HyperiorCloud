@@ -1,6 +1,7 @@
 package de.groodian.hyperiorcloud.master.service.connections;
 
 import de.groodian.hyperiorcloud.master.Master;
+import de.groodian.hyperiorcloud.master.event.events.MinecraftPartyUpdateEvent;
 import de.groodian.hyperiorcloud.master.service.Connection;
 import de.groodian.hyperiorcloud.master.service.Service;
 import de.groodian.hyperiorcloud.master.service.ServiceConnection;
@@ -25,8 +26,10 @@ public class MinecraftPartyServiceConnection extends ServiceConnection {
             gameState = datapackage.get(1).toString();
             onlinePlayers = (int) datapackage.get(2);
             maxPlayers = (int) datapackage.get(3);
+
+            Master.getInstance().getEventHandler().callEvent(new MinecraftPartyUpdateEvent(service, gameState, onlinePlayers, maxPlayers));
         } else {
-            Master.getInstance().getLogger().warning("[" + service.getId() + "] Unknowen header: " + header);
+            Master.getInstance().getLogger().warning("[" + service.getId() + "] Unknown header: " + header);
         }
     }
 

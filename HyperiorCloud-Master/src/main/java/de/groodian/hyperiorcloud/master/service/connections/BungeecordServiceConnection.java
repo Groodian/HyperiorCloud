@@ -20,7 +20,7 @@ public class BungeecordServiceConnection extends ServiceConnection {
         if (header.equalsIgnoreCase("SERVICE_INFO")) {
             onlinePlayers = (int) datapackage.get(1);
         } else {
-            Master.getInstance().getLogger().warning("[" + service.getId() + "] Unknowen header: " + header);
+            Master.getInstance().getLogger().warning("[" + service.getId() + "] Unknown header: " + header);
         }
     }
 

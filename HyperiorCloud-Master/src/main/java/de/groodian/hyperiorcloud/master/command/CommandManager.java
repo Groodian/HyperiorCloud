@@ -1,6 +1,7 @@
 package de.groodian.hyperiorcloud.master.command;
 
 import de.groodian.hyperiorcloud.master.Master;
+import de.groodian.hyperiorcloud.master.event.events.CommandEnteredEvent;
 import de.groodian.hyperiorcloud.master.logging.LogHandler;
 
 import java.util.ArrayList;
@@ -31,6 +32,7 @@ public class CommandManager {
     }
 
     public void callCommand(String name, String[] args) {
+        Master.getInstance().getEventHandler().callEvent(new CommandEnteredEvent(name, args));
         for (Command command : commands) {
             for (String commandName : command.getNames()) {
                 if (commandName.equalsIgnoreCase(name)) {

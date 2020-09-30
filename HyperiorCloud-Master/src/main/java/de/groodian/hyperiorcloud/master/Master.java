@@ -6,6 +6,8 @@ import de.groodian.hyperiorcloud.master.command.commands.ExitCommand;
 import de.groodian.hyperiorcloud.master.command.commands.HelpCommand;
 import de.groodian.hyperiorcloud.master.command.commands.ServiceCommand;
 import de.groodian.hyperiorcloud.master.console.Console;
+import de.groodian.hyperiorcloud.master.event.EventHandler;
+import de.groodian.hyperiorcloud.master.listerner.UpdateListener;
 import de.groodian.hyperiorcloud.master.logging.Logger;
 import de.groodian.hyperiorcloud.master.service.ServiceHandler;
 import de.groodian.hyperiorcloud.master.service.ServiceServer;
@@ -22,6 +24,7 @@ public class Master {
     private ServiceHandler serviceHandler;
     private ServiceServer serviceServer;
     private TaskHandler taskHandler;
+    private EventHandler eventHandler;
 
     public Master(Logger logger, Console console) {
         instance = this;
@@ -40,10 +43,14 @@ public class Master {
                 "      /____/_/                                                         \n");
         logger.info("HyperiorCloud-Master is loading...");
 
+        eventHandler = new EventHandler();
+        eventHandler.registerListener(new UpdateListener());
+
         commandManager = new CommandManager();
         console.setCommandManager(commandManager);
 
         serviceHandler = new ServiceHandler();
+        eventHandler.registerListener(serviceHandler);
 
         taskHandler = new TaskHandler();
         taskHandler.registerTask(new MinecraftPartyTask());
@@ -93,6 +100,10 @@ public class Master {
 
     public ServiceHandler getServiceHandler() {
         return serviceHandler;
+    }
+
+    public EventHandler getEventHandler() {
+        return eventHandler;
     }
 
 }

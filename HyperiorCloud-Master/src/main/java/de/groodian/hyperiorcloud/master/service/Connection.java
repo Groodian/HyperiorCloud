@@ -1,6 +1,7 @@
 package de.groodian.hyperiorcloud.master.service;
 
 import de.groodian.hyperiorcloud.master.Master;
+import de.groodian.hyperiorcloud.master.event.events.ServiceConnectedEvent;
 import de.groodian.network.DataPackage;
 
 import java.io.BufferedInputStream;
@@ -38,7 +39,7 @@ public class Connection {
 
                     if (header.equalsIgnoreCase("LOGIN")) {
                         oos = new ObjectOutputStream(new BufferedOutputStream(socket.getOutputStream()));
-                        Master.getInstance().getServiceHandler().newConnection(this, datapackage.get(1).toString(), (int) datapackage.get(2));
+                        Master.getInstance().getEventHandler().callEvent(new ServiceConnectedEvent(this, datapackage.get(1).toString(), (int) datapackage.get(2)));
                     } else {
                         Master.getInstance().getLogger().warning("[" + socket.getRemoteSocketAddress() + "] Unknown header: " + header + " Closing connection...");
                         socket.close();
