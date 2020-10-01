@@ -57,6 +57,10 @@ public abstract class ServiceConnection {
         }
     }
 
+    public String getClientAddress() {
+        return connection.getSocket().getInetAddress().getHostAddress();
+    }
+
     public void close() {
         connection.close();
         thread.interrupt();

@@ -25,7 +25,7 @@ public class ServiceServer {
 
                     Master.getInstance().getLogger().debug("[ServiceServer] Waiting for connection...");
                     Socket tempSocket = serverSocket.accept();
-                    Master.getInstance().getLogger().debug("[ServiceServer] Connected to service: " + tempSocket.getRemoteSocketAddress());
+                    Master.getInstance().getLogger().debug("[ServiceServer] Connected to service: " + tempSocket.getInetAddress().getHostAddress() + ":" + tempSocket.getPort());
 
                     new Connection(tempSocket);
 

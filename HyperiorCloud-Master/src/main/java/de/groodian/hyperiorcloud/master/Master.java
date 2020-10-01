@@ -12,6 +12,8 @@ import de.groodian.hyperiorcloud.master.logging.Logger;
 import de.groodian.hyperiorcloud.master.service.ServiceHandler;
 import de.groodian.hyperiorcloud.master.service.ServiceServer;
 import de.groodian.hyperiorcloud.master.task.TaskHandler;
+import de.groodian.hyperiorcloud.master.task.tasks.BungeecordTask;
+import de.groodian.hyperiorcloud.master.task.tasks.LobbyTask;
 import de.groodian.hyperiorcloud.master.task.tasks.MinecraftPartyTask;
 
 public class Master {
@@ -54,6 +56,8 @@ public class Master {
 
         taskHandler = new TaskHandler();
         taskHandler.registerTask(new MinecraftPartyTask());
+        taskHandler.registerTask(new LobbyTask());
+        taskHandler.registerTask(new BungeecordTask());
 
         serviceServer = new ServiceServer(4444);
         if (serviceServer.start()) {

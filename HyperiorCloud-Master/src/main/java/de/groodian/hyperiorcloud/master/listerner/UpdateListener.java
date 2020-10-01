@@ -38,8 +38,10 @@ public class UpdateListener implements Listener {
     public void handleServiceConnect(ServiceConnectedEvent e) {
         Master.getInstance().getServiceHandler().broadcastToGroup("BUNGEECORD", new DataPackage(
                 "CONNECTED",
-                e.getGroup(),
-                e.getGroupNumber()
+                e.getService().getGroup(),
+                e.getService().getGroupNumber(),
+                e.getService().getConnection().getClientAddress(),
+                e.getService().getPort()
         ));
     }
 

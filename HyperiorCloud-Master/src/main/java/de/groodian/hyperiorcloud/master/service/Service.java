@@ -1,6 +1,7 @@
 package de.groodian.hyperiorcloud.master.service;
 
 import de.groodian.hyperiorcloud.master.Master;
+import de.groodian.hyperiorcloud.master.event.events.ServiceConnectedEvent;
 import de.groodian.hyperiorcloud.master.logging.Logger;
 import de.groodian.hyperiorcloud.master.util.FileUtil;
 
@@ -243,6 +244,7 @@ public abstract class Service {
         serviceStatus = ServiceStatus.CONNECTED;
         prepareThread.interrupt();
         this.serviceConnection = serviceConnection;
+        Master.getInstance().getEventHandler().callEvent(new ServiceConnectedEvent(this));
     }
 
     public void executeCommand(String command) {

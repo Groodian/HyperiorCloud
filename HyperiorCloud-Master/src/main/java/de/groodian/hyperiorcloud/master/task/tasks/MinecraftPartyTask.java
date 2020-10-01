@@ -8,8 +8,8 @@ import de.groodian.hyperiorcloud.master.task.Task;
 
 public class MinecraftPartyTask extends Task {
 
-    private static final int MAX_SERVERS = 5;
-    private static final int MAX_SERVERS_IN_LOBBY_STATE = 1;
+    private static final int MAX_SERVICES = 5;
+    private static final int MAX_SERVICES_IN_LOBBY_STATE = 1;
 
     public MinecraftPartyTask() {
         super(ServiceType.SPIGOT, "MINECRAFTPARTY");
@@ -39,7 +39,7 @@ public class MinecraftPartyTask extends Task {
             }
         }
 
-        if (serversInLobbyState + serversStarting < MAX_SERVERS_IN_LOBBY_STATE && totalServers < MAX_SERVERS) {
+        if (serversInLobbyState + serversStarting < MAX_SERVICES_IN_LOBBY_STATE && totalServers < MAX_SERVICES) {
 
             return true;
 

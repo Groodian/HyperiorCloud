@@ -3,7 +3,7 @@ package de.groodian.hyperiorcloud.master.service;
 import de.groodian.hyperiorcloud.master.Master;
 import de.groodian.hyperiorcloud.master.event.EventListener;
 import de.groodian.hyperiorcloud.master.event.Listener;
-import de.groodian.hyperiorcloud.master.event.events.ServiceConnectedEvent;
+import de.groodian.hyperiorcloud.master.event.events.PreServiceConnectedEvent;
 import de.groodian.hyperiorcloud.master.service.connections.BungeecordServiceConnection;
 import de.groodian.hyperiorcloud.master.service.connections.LobbyServiceConnection;
 import de.groodian.hyperiorcloud.master.service.connections.MinecraftPartyServiceConnection;
@@ -102,7 +102,7 @@ public class ServiceHandler implements Listener {
     }
 
     @EventListener
-    public void handleServiceConnected(ServiceConnectedEvent e) {
+    public void handlePreServiceConnected(PreServiceConnectedEvent e) {
         for (Service service : getServices()) {
             if (service.getId().equalsIgnoreCase(e.getGroup() + "-" + e.getGroupNumber())) {
                 if (e.getGroup().equalsIgnoreCase("BUNGEECORD")) {
@@ -168,7 +168,9 @@ public class ServiceHandler implements Listener {
     }
 
     private void sendMessage(Service service, DataPackage pack) {
-        service.getConnection().sendMessage(pack);
+        if(service.getConnection() != null) {
+            service.getConnection().sendMessage(pack);
+        }
     }
 
     private int getGroupNumber(String group) {
