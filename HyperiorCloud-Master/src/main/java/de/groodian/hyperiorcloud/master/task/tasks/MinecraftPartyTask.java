@@ -2,6 +2,7 @@ package de.groodian.hyperiorcloud.master.task.tasks;
 
 import de.groodian.hyperiorcloud.master.Master;
 import de.groodian.hyperiorcloud.master.service.Service;
+import de.groodian.hyperiorcloud.master.service.ServiceType;
 import de.groodian.hyperiorcloud.master.service.connections.MinecraftPartyServiceConnection;
 import de.groodian.hyperiorcloud.master.task.Task;
 
@@ -11,7 +12,7 @@ public class MinecraftPartyTask extends Task {
     private static final int MAX_SERVERS_IN_LOBBY_STATE = 1;
 
     public MinecraftPartyTask() {
-        super("MINECRAFTPARTY");
+        super(ServiceType.SPIGOT, "MINECRAFTPARTY");
     }
 
     @Override

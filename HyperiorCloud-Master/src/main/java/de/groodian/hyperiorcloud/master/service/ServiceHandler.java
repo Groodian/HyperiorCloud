@@ -58,7 +58,15 @@ public class ServiceHandler implements Listener {
 
     }
 
-    public void startService(String group) {
+    public void startService(String serviceType, String group) {
+        try {
+            startService(ServiceType.valueOf(serviceType.toUpperCase()), group);
+        } catch (IllegalArgumentException e) {
+            Master.getInstance().getLogger().error("[ServiceHandler] Unknown service type: " + serviceType);
+        }
+    }
+
+    public void startService(ServiceType serviceType, String group) {
         int groupNumber = getGroupNumber(group);
         if (groupNumber == -1) {
             Master.getInstance().getLogger().error("[ServiceHandler] Could not find a group number!");
@@ -69,11 +77,18 @@ public class ServiceHandler implements Listener {
             Master.getInstance().getLogger().error("[ServiceHandler] Could not find a port!");
         }
 
-        if (group.equalsIgnoreCase("BUNGEECORD")) {
-            services.add(new BungeecordService(this, group, groupNumber, port));
-        } else {
-            services.add(new SpigotService(this, group, groupNumber, port));
+        switch (serviceType) {
+            case SPIGOT:
+                services.add(new SpigotService(this, group, groupNumber, port));
+                break;
+            case BUNGEECORD:
+                services.add(new BungeecordService(this, group, groupNumber, 25565));
+                break;
+            default:
+                Master.getInstance().getLogger().error("[ServiceHandler] Unknown service type: " + serviceType);
+                break;
         }
+
     }
 
     public boolean stopService(String serviceId) {

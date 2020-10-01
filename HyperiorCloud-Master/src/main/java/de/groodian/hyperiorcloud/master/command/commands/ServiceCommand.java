@@ -7,7 +7,10 @@ import de.groodian.hyperiorcloud.master.service.ServiceHandler;
 
 public class ServiceCommand extends Command {
 
-    private static final String USAGE = "Usage: service <start/stop/list> [serviceId]";
+    private static final String USAGE = "Usage: " +
+            "\nservice start [serviceType] [serviceId]" +
+            "\nservice stop [serviceId]" +
+            "\nservice list";
 
     private ServiceHandler serviceHandler;
 
@@ -37,12 +40,16 @@ public class ServiceCommand extends Command {
                 Master.getInstance().getLogger().command(USAGE);
             }
         } else if (args.length == 2) {
-            if (args[0].equalsIgnoreCase("start")) {
-                serviceHandler.startService(args[1]);
-            } else if (args[0].equalsIgnoreCase("stop")) {
+            if (args[0].equalsIgnoreCase("stop")) {
                 if (!serviceHandler.stopService(args[1])) {
                     Master.getInstance().getLogger().command("This serviceId was not found!");
                 }
+            } else {
+                Master.getInstance().getLogger().command(USAGE);
+            }
+        } else if (args.length == 3) {
+            if (args[0].equalsIgnoreCase("start")) {
+                serviceHandler.startService(args[1], args[2]);
             } else {
                 Master.getInstance().getLogger().command(USAGE);
             }

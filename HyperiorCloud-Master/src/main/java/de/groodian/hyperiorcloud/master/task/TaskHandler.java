@@ -29,7 +29,7 @@ public class TaskHandler {
 
                 for (Task task : tasks) {
                     if (task.startCondition()) {
-                        Master.getInstance().getServiceHandler().startService(task.getGroup());
+                        Master.getInstance().getServiceHandler().startService(task.getServiceType(), task.getGroup());
                     }
                 }
 
