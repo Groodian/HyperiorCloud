@@ -2,9 +2,12 @@ package de.groodian.hyperiorcloud.master;
 
 import de.groodian.hyperiorcloud.master.command.CommandManager;
 import de.groodian.hyperiorcloud.master.command.commands.ClearCommand;
+import de.groodian.hyperiorcloud.master.command.commands.ExecuteCommandOnServiceCommand;
 import de.groodian.hyperiorcloud.master.command.commands.ExitCommand;
 import de.groodian.hyperiorcloud.master.command.commands.HelpCommand;
-import de.groodian.hyperiorcloud.master.command.commands.ServiceCommand;
+import de.groodian.hyperiorcloud.master.command.commands.ListServicesCommand;
+import de.groodian.hyperiorcloud.master.command.commands.StartServiceCommand;
+import de.groodian.hyperiorcloud.master.command.commands.StopServiceCommand;
 import de.groodian.hyperiorcloud.master.console.Console;
 import de.groodian.hyperiorcloud.master.event.EventHandler;
 import de.groodian.hyperiorcloud.master.listerner.UpdateListener;
@@ -67,7 +70,10 @@ public class Master {
         commandManager.registerCommand(new HelpCommand(commandManager));
         commandManager.registerCommand(new ExitCommand());
         commandManager.registerCommand(new ClearCommand(console));
-        commandManager.registerCommand(new ServiceCommand(serviceHandler));
+        commandManager.registerCommand(new StartServiceCommand());
+        commandManager.registerCommand(new StopServiceCommand());
+        commandManager.registerCommand(new ListServicesCommand());
+        commandManager.registerCommand(new ExecuteCommandOnServiceCommand());
 
         logger.info("Loaded.");
         logger.info("Use 'help' for help.");

@@ -137,6 +137,16 @@ public class ServiceHandler implements Listener {
         return services;
     }
 
+    public boolean executeCommandOnService(String serviceId, String command) {
+        for (Service service : getServices()) {
+            if (service.getId().equalsIgnoreCase(serviceId)) {
+                service.executeCommand(command);
+                return true;
+            }
+        }
+        return false;
+    }
+
     public void broadcast(DataPackage pack) {
         new Thread(() -> {
 
@@ -168,7 +178,7 @@ public class ServiceHandler implements Listener {
     }
 
     private void sendMessage(Service service, DataPackage pack) {
-        if(service.getConnection() != null) {
+        if (service.getConnection() != null) {
             Master.getInstance().getLogger().debug("[" + service.getId() + "] Sending pack: " + pack);
             service.getConnection().sendMessage(pack);
         }
