@@ -169,6 +169,7 @@ public class ServiceHandler implements Listener {
 
     private void sendMessage(Service service, DataPackage pack) {
         if(service.getConnection() != null) {
+            Master.getInstance().getLogger().debug("[" + service.getId() + "] Sending pack: " + pack);
             service.getConnection().sendMessage(pack);
         }
     }

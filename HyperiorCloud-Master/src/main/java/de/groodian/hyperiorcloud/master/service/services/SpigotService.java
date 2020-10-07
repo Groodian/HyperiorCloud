@@ -6,7 +6,6 @@ import de.groodian.hyperiorcloud.master.service.ServiceHandler;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -36,15 +35,19 @@ public class SpigotService extends Service {
     protected boolean setProperties() {
         try {
             Properties properties = new Properties();
+
             FileInputStream in = new FileInputStream(new File(destinationPath, "server.properties"));
-            FileOutputStream out = new FileOutputStream(new File(destinationPath, "server.properties"));
             properties.load(in);
+            in.close();
+
             properties.setProperty("server-port", String.valueOf(port));
             properties.setProperty("server-name", String.valueOf(groupNumber));
             properties.setProperty("motd", getId());
+
+            FileOutputStream out = new FileOutputStream(new File(destinationPath, "server.properties"));
             properties.store(out, "Edited by HyperiorCloud");
-            in.close();
             out.close();
+
             return true;
         } catch (Exception e) {
             errorRoutine("Could not set service properties!", e);

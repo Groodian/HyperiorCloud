@@ -240,6 +240,11 @@ public abstract class Service {
     }
 
     public void setConnection(ServiceConnection serviceConnection) {
+        if (serviceStatus != ServiceStatus.STARTING) {
+            logger.debug("[" + getId() + "] Prevented to set the service connection in the status: " + serviceStatus);
+            return;
+        }
+
         logger.info("[" + getId() + "] Service started. (" + (System.currentTimeMillis() - startStartTime) + "ms)");
         serviceStatus = ServiceStatus.CONNECTED;
         prepareThread.interrupt();

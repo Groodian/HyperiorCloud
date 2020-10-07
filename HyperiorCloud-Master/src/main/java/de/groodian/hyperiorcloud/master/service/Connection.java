@@ -39,6 +39,7 @@ public class Connection {
 
                     if (header.equalsIgnoreCase("LOGIN")) {
                         oos = new ObjectOutputStream(new BufferedOutputStream(socket.getOutputStream()));
+                        oos.flush();
                         Master.getInstance().getEventHandler().callEvent(new PreServiceConnectedEvent(this, datapackage.get(1).toString(), (int) datapackage.get(2), socket.getInetAddress().getHostAddress(), socket.getPort()));
                     } else {
                         Master.getInstance().getLogger().warning("[" + socket.getRemoteSocketAddress() + "] Unknown header: " + header + " Closing connection...");

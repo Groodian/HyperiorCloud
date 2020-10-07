@@ -1,30 +1,18 @@
 package de.groodian.hyperiorcloud.master.event.events;
 
 import de.groodian.hyperiorcloud.master.event.Event;
-import de.groodian.hyperiorcloud.master.service.Connection;
+import de.groodian.hyperiorcloud.master.service.Service;
 
 public class ServiceConnectedEvent implements Event {
 
-    private Connection connection;
-    private String group;
-    private int groupNumber;
+    private Service service;
 
-    public ServiceConnectedEvent(Connection connection, String group, int groupNumber) {
-        this.connection = connection;
-        this.group = group;
-        this.groupNumber = groupNumber;
+    public ServiceConnectedEvent(Service service) {
+        this.service = service;
     }
 
-    public Connection getConnection() {
-        return connection;
-    }
-
-    public String getGroup() {
-        return group;
-    }
-
-    public int getGroupNumber() {
-        return groupNumber;
+    public Service getService() {
+        return service;
     }
 
 }
