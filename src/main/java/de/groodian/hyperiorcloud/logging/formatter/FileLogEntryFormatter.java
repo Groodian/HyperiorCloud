@@ -1,16 +1,16 @@
 package de.groodian.hyperiorcloud.logging.formatter;
 
-import de.groodian.hyperiorcloud.console.ConsoleColor;
 import de.groodian.hyperiorcloud.logging.LogEntry;
 import de.groodian.hyperiorcloud.logging.LogEntryFormatter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import org.jline.utils.AttributedString;
 
 public class FileLogEntryFormatter implements LogEntryFormatter {
 
-    private DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss.SSS");
+    private final DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss.SSS");
 
     @Override
     public String format(LogEntry logEntry) {
@@ -54,7 +54,7 @@ public class FileLogEntryFormatter implements LogEntryFormatter {
 
         stringBuilder.append(System.lineSeparator());
 
-        return ConsoleColor.removeColorCodes(stringBuilder.toString());
+        return AttributedString.stripAnsi(stringBuilder.toString());
     }
 
 }

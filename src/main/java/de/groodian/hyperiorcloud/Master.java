@@ -1,7 +1,6 @@
 package de.groodian.hyperiorcloud;
 
 import de.groodian.hyperiorcloud.command.CommandManager;
-import de.groodian.hyperiorcloud.command.commands.ClearCommand;
 import de.groodian.hyperiorcloud.command.commands.ExecuteCommandOnServiceCommand;
 import de.groodian.hyperiorcloud.command.commands.ExitCommand;
 import de.groodian.hyperiorcloud.command.commands.HelpCommand;
@@ -9,6 +8,7 @@ import de.groodian.hyperiorcloud.command.commands.ListServicesCommand;
 import de.groodian.hyperiorcloud.command.commands.StartServiceCommand;
 import de.groodian.hyperiorcloud.command.commands.StopServiceCommand;
 import de.groodian.hyperiorcloud.console.Console;
+import de.groodian.hyperiorcloud.console.ConsoleColor;
 import de.groodian.hyperiorcloud.event.EventHandler;
 import de.groodian.hyperiorcloud.listerner.UpdateListener;
 import de.groodian.hyperiorcloud.logging.Logger;
@@ -18,6 +18,7 @@ import de.groodian.hyperiorcloud.task.TaskHandler;
 import de.groodian.hyperiorcloud.task.tasks.LobbyTask;
 import de.groodian.hyperiorcloud.task.tasks.MinecraftPartyTask;
 import de.groodian.hyperiorcloud.task.tasks.ProxyTask;
+import org.jline.utils.AttributedStringBuilder;
 
 public class Master {
 
@@ -39,13 +40,15 @@ public class Master {
     }
 
     public void start() {
-        logger.info("&b\n" +
-                    "    __  __                      _            ________                __\n" +
-                    "   / / / /_  ______  ___  _____(_)___  _____/ ____/ /___  __  ______/ /\n" +
-                    "  / /_/ / / / / __ \\/ _ \\/ ___/ / __ \\/ ___/ /   / / __ \\/ / / / __  / \n" +
-                    " / __  / /_/ / /_/ /  __/ /  / / /_/ / /  / /___/ / /_/ / /_/ / /_/ /  \n" +
-                    "/_/ /_/\\__, / .___/\\___/_/  /_/\\____/_/   \\____/_/\\____/\\__,_/\\__,_/   \n" +
-                    "      /____/_/                                                         \n");
+        logger.info(new AttributedStringBuilder().append(
+                "\n" +
+                "    __  __                      _            ________                __\n" +
+                "   / / / /_  ______  ___  _____(_)___  _____/ ____/ /___  __  ______/ /\n" +
+                "  / /_/ / / / / __ \\/ _ \\/ ___/ / __ \\/ ___/ /   / / __ \\/ / / / __  / \n" +
+                " / __  / /_/ / /_/ /  __/ /  / / /_/ / /  / /___/ / /_/ / /_/ / /_/ /  \n" +
+                "/_/ /_/\\__, / .___/\\___/_/  /_/\\____/_/   \\____/_/\\____/\\__,_/\\__,_/   \n" +
+                "      /____/_/                                                         \n",
+                ConsoleColor.AQUA.getStyle()).toAnsi());
         logger.info("HyperiorCloud-Master is loading...");
 
         eventHandler = new EventHandler();
@@ -69,7 +72,6 @@ public class Master {
 
         commandManager.registerCommand(new HelpCommand(commandManager));
         commandManager.registerCommand(new ExitCommand());
-        commandManager.registerCommand(new ClearCommand(console));
         commandManager.registerCommand(new StartServiceCommand());
         commandManager.registerCommand(new StopServiceCommand());
         commandManager.registerCommand(new ListServicesCommand());

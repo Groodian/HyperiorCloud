@@ -1,6 +1,6 @@
 # Hyperior Cloud
 This program is part of the `Hyperior Minecraft Server Network` project.
-It is not meant to be run without the full setup of the different template servers: `lobby`, `proxy` and `minecraft party`
+It is not meant to be run without the full setup of the different template servers: `LOBBY`, `PROXY` and `MINECRAFTPARTY`
 
 This repository contains the code of the program `Hyperior Cloud`.
 

@@ -4,19 +4,19 @@ import de.groodian.hyperiorcloud.console.ConsoleColor;
 
 public enum LogLevel {
 
-    FATAL(0, ConsoleColor.DARK_RED.getAnsiCode()),
-    ERROR(1, ConsoleColor.RED.getAnsiCode()),
-    WARNING(2, ConsoleColor.GOLD.getAnsiCode()),
-    IMPORTANT(3, ConsoleColor.YELLOW.getAnsiCode()),
-    INFO(4, ConsoleColor.DEFAULT.getAnsiCode()),
-    COMMAND(5, ConsoleColor.DEFAULT.getAnsiCode()),
-    DEBUG(6, ConsoleColor.DEFAULT.getAnsiCode()),
-    ALL(Integer.MAX_VALUE, ConsoleColor.DEFAULT.getAnsiCode());
+    FATAL(0, ConsoleColor.DARK_RED),
+    ERROR(1, ConsoleColor.RED),
+    WARNING(2, ConsoleColor.GOLD),
+    IMPORTANT(3, ConsoleColor.YELLOW),
+    INFO(4, ConsoleColor.DEFAULT),
+    COMMAND(5, ConsoleColor.DEFAULT),
+    DEBUG(6, ConsoleColor.DEFAULT),
+    ALL(Integer.MAX_VALUE, ConsoleColor.DEFAULT);
 
-    private int level;
-    private String color;
+    private final int level;
+    private final ConsoleColor color;
 
-    LogLevel(int level, String color) {
+    LogLevel(int level, ConsoleColor color) {
         this.level = level;
         this.color = color;
     }
@@ -25,7 +25,7 @@ public enum LogLevel {
         return level;
     }
 
-    public String getColor() {
+    public ConsoleColor getColor() {
         return color;
     }
 

@@ -5,37 +5,33 @@ import de.groodian.hyperiorcloud.logging.LogEntry;
 import de.groodian.hyperiorcloud.logging.LogEntryFormatter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import org.jline.utils.AttributedStringBuilder;
 
 public class ConsoleLogEntryFormatter implements LogEntryFormatter {
 
-    private DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss.SSS");
+    private final DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss.SSS");
 
     @Override
     public String format(LogEntry logEntry) {
-        StringBuilder stringBuilder = new StringBuilder();
-
-        stringBuilder
-                .append("&8[&7")
-                .append(dateFormat.format(logEntry.getTime()))
-                .append("&8] [")
-                .append(logEntry.getLogLevel().getColor())
-                .append(logEntry.getLogLevel().toString())
-                .append("&8]")
-                .append(" &7> &f")
-                .append(logEntry.getMessage());
+        AttributedStringBuilder attributedStringBuilder = new AttributedStringBuilder()
+                .append("[", ConsoleColor.DARK_GRAY.getStyle())
+                .append(dateFormat.format(logEntry.getTime()), ConsoleColor.GRAY.getStyle())
+                .append("] [", ConsoleColor.DARK_GRAY.getStyle())
+                .append(logEntry.getLogLevel().toString(), logEntry.getLogLevel().getColor().getStyle())
+                .append("] ", ConsoleColor.DARK_GRAY.getStyle())
+                .append("> ", ConsoleColor.GRAY.getStyle())
+                .append(logEntry.getMessage(), ConsoleColor.WHITE.getStyle());
 
         if (logEntry.getThrowable() != null && logEntry.getThrowable().getStackTrace()[0] != null) {
-            stringBuilder
+            attributedStringBuilder
                     .append(" [Cause: ")
-                    .append(logEntry.getThrowable())
+                    .append(logEntry.getThrowable().toString())
                     .append(" at ")
-                    .append(logEntry.getThrowable().getStackTrace()[0])
+                    .append(logEntry.getThrowable().getStackTrace()[0].toString())
                     .append("]");
         }
 
-        stringBuilder.append(System.lineSeparator());
-
-        return ConsoleColor.translateColorCodes(stringBuilder.toString());
+        return attributedStringBuilder.toAnsi();
     }
 
 }

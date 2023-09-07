@@ -12,7 +12,7 @@ public class StartServiceCommand extends Command {
     @Override
     public void execute(String[] args) {
         if (args.length == 2) {
-            Master.getInstance().getServiceHandler().startService(args[0], args[1]);
+            Master.getInstance().getServiceHandler().startService(args[0].toUpperCase(), args[1].toUpperCase());
         } else {
             Master.getInstance().getLogger().command("Usage: start <serviceType> <templateName>");
         }

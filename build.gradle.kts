@@ -12,7 +12,8 @@ java {
 }
 
 dependencies {
-    implementation("jline:jline:2.14.6")
+    implementation("org.jline:jline:3.23.0")
+    implementation("org.jline:jline-terminal-jansi:3.23.0")
 }
 
 repositories {
